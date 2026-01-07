@@ -97,23 +97,23 @@
 
 ### Retrieval Engine (US1)
 
-- [ ] T044 Write test for BM25 keyword search in tests/unit/retrieval/test_keyword_search.py
-- [ ] T045 Implement keyword search in src/retrieval/keyword_search.py (PostgreSQL full-text search)
-- [ ] T046 [P] Write test for vector similarity search in tests/unit/retrieval/test_vector_search.py
-- [ ] T047 [P] Implement vector search in src/retrieval/vector_search.py (Qdrant query with filters)
-- [ ] T048 Write test for hybrid search with RRF in tests/unit/retrieval/test_hybrid_search.py
-- [ ] T049 Implement hybrid search in src/retrieval/hybrid_search.py (BM25 + vector, reciprocal rank fusion)
-- [ ] T050 [P] Write test for ACL filtering in tests/unit/retrieval/test_acl_filter.py (fail-closed behavior)
-- [ ] T051 [P] Implement ACL filter in src/retrieval/acl_filter.py (check user permissions, exclude undefined ACLs)
-- [ ] T052 [P] Write test for identity resolution in tests/unit/services/test_identity_resolution.py
-- [ ] T053 [P] Implement identity resolution in src/services/identity_resolution.py (email-based matching)
+- [X] T044 Write test for BM25 keyword search in tests/unit/retrieval/test_keyword_search.py
+- [X] T045 Implement keyword search in src/retrieval/keyword_search.py (PostgreSQL full-text search)
+- [X] T046 [P] Write test for vector similarity search in tests/unit/retrieval/test_vector_search.py
+- [X] T047 [P] Implement vector search in src/retrieval/vector_search.py (Qdrant query with filters)
+- [X] T048 Write test for hybrid search with RRF in tests/unit/retrieval/test_hybrid_search.py
+- [X] T049 Implement hybrid search in src/retrieval/hybrid_search.py (BM25 + vector, reciprocal rank fusion)
+- [X] T050 [P] Write test for ACL filtering in tests/unit/retrieval/test_acl_filter.py (fail-closed behavior)
+- [X] T051 [P] Implement ACL filter in src/retrieval/acl_filter.py (check user permissions, exclude undefined ACLs)
+- [X] T052 [P] Write test for identity resolution in tests/unit/services/test_identity_resolution.py
+- [X] T053 [P] Implement identity resolution in src/services/identity_resolution.py (email-based matching)
 
 ### LLM Integration (US1)
 
-- [ ] T054 Write test for OpenAI client wrapper in tests/unit/integrations/test_llm_client.py (test abstract LLMClient interface)
-- [ ] T055 Implement LLM client in src/integrations/llm_client.py (abstract LLMClient base class + OpenAI/Anthropic/Ollama implementations for pluggable backends per FR-042)
-- [ ] T056 [P] Write test for answer generation in tests/unit/retrieval/test_answer_generation.py
-- [ ] T057 [P] Implement answer generation in src/retrieval/answer_generation.py (RAG with grounded citations)
+- [X] T054 Write test for OpenAI client wrapper in tests/unit/integrations/test_llm_client.py (test abstract LLMClient interface)
+- [X] T055 Implement LLM client in src/integrations/llm_client.py (abstract LLMClient base class + OpenAI/Anthropic/Ollama implementations for pluggable backends per FR-042)
+- [X] T056 [P] Write test for answer generation in tests/unit/retrieval/test_answer_generation.py
+- [X] T057 [P] Implement answer generation in src/retrieval/answer_generation.py (RAG with grounded citations)
 
 ### API Endpoints (US1)
 

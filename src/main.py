@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.config import settings
+from src.api.routes import query, conversations
 
 # Create FastAPI app
 app = FastAPI(
@@ -22,6 +23,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(query.router)
+app.include_router(conversations.router)
 
 
 @app.get("/health")
