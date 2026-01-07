@@ -43,22 +43,22 @@
 
 ### Tasks
 
-- [ ] T011 Create Alembic migration setup in alembic/ directory with env.py and alembic.ini
-- [ ] T012 Write test for Workspace model in tests/unit/models/test_workspace.py
-- [ ] T013 Implement Workspace model in src/models/workspace.py (id, name, created_at, updated_at)
-- [ ] T014 [P] Write test for User model in tests/unit/models/test_user.py
-- [ ] T015 [P] Implement User model in src/models/user.py (email, role, connector_identities JSONB)
-- [ ] T016 [P] Write test for ConnectorDefinition model in tests/unit/models/test_connector_definition.py
-- [ ] T017 [P] Implement ConnectorDefinition model in src/models/connector_definition.py
-- [ ] T018 Create Alembic migration: Phase 2 foundational entities (Workspace, User, ConnectorDefinition - 3 entities)
-- [ ] T019 Write test for JWT token generation/validation in tests/unit/services/test_auth.py
-- [ ] T020 Implement JWT auth service in src/services/auth.py (15min access, 7day refresh tokens)
-- [ ] T021 [P] Write test for auth middleware in tests/unit/api/middleware/test_auth.py
-- [ ] T022 [P] Implement auth middleware in src/api/middleware/auth.py (Bearer token validation)
-- [ ] T023 [P] Write test for Fernet encryption utility in tests/unit/services/test_encryption.py
-- [ ] T024 [P] Implement encryption utility in src/services/encryption.py (for connector credentials)
-- [ ] T025 Create FastAPI app skeleton in src/main.py with /health endpoint
-- [ ] T026 [P] Write integration test for /health endpoint in tests/integration/api/test_health.py
+- [X] T011 Create Alembic migration setup in alembic/ directory with env.py and alembic.ini
+- [X] T012 Write test for Workspace model in tests/unit/models/test_workspace.py
+- [X] T013 Implement Workspace model in src/models/workspace.py (id, name, created_at, updated_at)
+- [X] T014 [P] Write test for User model in tests/unit/models/test_user.py
+- [X] T015 [P] Implement User model in src/models/user.py (email, role, connector_identities JSONB)
+- [X] T016 [P] Write test for ConnectorDefinition model in tests/unit/models/test_connector_definition.py
+- [X] T017 [P] Implement ConnectorDefinition model in src/models/connector_definition.py
+- [X] T018 Create Alembic migration: Phase 2 foundational entities (Workspace, User, ConnectorDefinition - 3 entities)
+- [X] T019 Write test for JWT token generation/validation in tests/unit/services/test_auth.py
+- [X] T020 Implement JWT auth service in src/services/auth.py (15min access, 7day refresh tokens)
+- [X] T021 [P] Write test for auth middleware in tests/unit/api/middleware/test_auth.py
+- [X] T022 [P] Implement auth middleware in src/api/middleware/auth.py (Bearer token validation)
+- [X] T023 [P] Write test for Fernet encryption utility in tests/unit/services/test_encryption.py
+- [X] T024 [P] Implement encryption utility in src/services/encryption.py (for connector credentials)
+- [X] T025 Create FastAPI app skeleton in src/main.py with /health endpoint
+- [X] T026 [P] Write integration test for /health endpoint in tests/integration/api/test_health.py
 
 **Independent Test**: Start Docker Compose, run Alembic migrations, verify database tables exist, call /health endpoint returns 200.
 
