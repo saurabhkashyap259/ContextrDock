@@ -74,15 +74,15 @@
 
 ### Database Models (US1)
 
-- [ ] T027 Write test for Document model in tests/unit/models/test_document.py
-- [ ] T028 Implement Document model in src/models/document.py (source_type, source_id, title, url, content_hash)
-- [ ] T029 [P] Write test for DocumentChunk model in tests/unit/models/test_document_chunk.py
-- [ ] T030 [P] Implement DocumentChunk model in src/models/document_chunk.py (content, token_count, embedding_id, acl_json)
-- [ ] T031 [P] Write test for Conversation model in tests/unit/models/test_conversation.py
-- [ ] T032 [P] Implement Conversation model in src/models/conversation.py (channel_type, external_channel_id)
-- [ ] T033 [P] Write test for Message model in tests/unit/models/test_message.py
-- [ ] T034 [P] Implement Message model in src/models/message.py (role, content, citations_json)
-- [ ] T035 Create Alembic migration: Phase 3 US1 entities (Document, DocumentChunk, Conversation, Message - 4 entities)
+- [X] T027 Write test for Document model in tests/unit/models/test_document.py
+- [X] T028 Implement Document model in src/models/document.py (source_type, source_id, title, url, content_hash)
+- [X] T029 [P] Write test for DocumentChunk model in tests/unit/models/test_document_chunk.py
+- [X] T030 [P] Implement DocumentChunk model in src/models/document_chunk.py (content, token_count, embedding_id, acl_json)
+- [X] T031 [P] Write test for Conversation model in tests/unit/models/test_conversation.py
+- [X] T032 [P] Implement Conversation model in src/models/conversation.py (channel_type, external_channel_id)
+- [X] T033 [P] Write test for Message model in tests/unit/models/test_message.py
+- [X] T034 [P] Implement Message model in src/models/message.py (role, content, citations_json)
+- [X] T035 Create Alembic migration: Phase 3 US1 entities (Document, DocumentChunk, Conversation, Message - 4 entities)
 
 ### Ingestion Pipeline (US1)
 

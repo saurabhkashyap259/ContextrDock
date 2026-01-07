@@ -14,6 +14,11 @@ from src.config import settings
 from src.models.workspace import Workspace
 from src.models.user import User
 from src.models.connector_definition import ConnectorDefinition
+from src.models.connector import Connector
+from src.models.document import Document
+from src.models.document_chunk import DocumentChunk
+from src.models.conversation import Conversation
+from src.models.message import Message
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
