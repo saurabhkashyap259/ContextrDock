@@ -152,8 +152,8 @@
 
 ### Connector SDK (US2)
 
-- [ ] T074 Write test for ConnectorBase abstract class in tests/unit/connectors/sdk/test_base.py
-- [ ] T075 Implement ConnectorBase in src/connectors/sdk/base.py (lifecycle hooks: sync, fetch_page, extract_acl)
+- [X] T074 Write test for ConnectorBase abstract class in tests/unit/connectors/sdk/test_base.py
+- [X] T075 Implement ConnectorBase in src/connectors/sdk/base.py (lifecycle hooks: sync, fetch_page, extract_acl)
 - [ ] T076 [P] Write test for OAuth2 helper in tests/unit/connectors/sdk/test_oauth.py
 - [ ] T077 [P] Implement OAuth2 helper in src/connectors/sdk/oauth.py (authorization flow, token refresh)
 - [ ] T078 [P] Write test for rate limiter decorator in tests/unit/connectors/sdk/test_rate_limiter.py
