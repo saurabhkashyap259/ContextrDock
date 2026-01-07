@@ -2,6 +2,7 @@
 
 from sqlalchemy import Column, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
@@ -44,6 +45,9 @@ class Document(Base):
         onupdate=func.now(),
         nullable=False,
     )
+    
+    # Relationships
+    connector = relationship("Connector", back_populates="documents")
 
     def __repr__(self) -> str:
         return f"<Document(id={self.id}, source_type='{self.source_type}', title='{self.title[:50]}')>"

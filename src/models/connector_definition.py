@@ -2,6 +2,7 @@
 
 from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
@@ -49,6 +50,9 @@ class ConnectorDefinition(Base):
         onupdate=func.now(),
         nullable=False,
     )
+    
+    # Relationships
+    connectors = relationship("Connector", back_populates="connector_definition")
 
     def __repr__(self) -> str:
         return f"<ConnectorDefinition(id={self.id}, name='{self.name}', type='{self.connector_type}')>"

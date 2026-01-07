@@ -8,14 +8,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-# Note: Base will be imported from src.models.base once created
+from src.models.connector_definition import ConnectorDefinition
 
 
 @pytest.fixture(scope="session")
 def db_engine() -> Generator:
     """Create a test database engine (synchronous)."""
     engine = create_engine(
-        "postgresql://contextdock:password@localhost:5432/contextdock_test",
+        "postgresql://contextdock:contextdock@localhost:5432/contextdock_test",
         echo=False,
     )
     yield engine
@@ -26,7 +26,7 @@ def db_engine() -> Generator:
 def async_db_engine() -> AsyncGenerator:
     """Create a test database engine (asynchronous)."""
     engine = create_async_engine(
-        "postgresql+asyncpg://contextdock:password@localhost:5432/contextdock_test",
+        "postgresql+asyncpg://contextdock:contextdock@localhost:5432/contextdock_test",
         echo=False,
     )
     yield engine
@@ -119,6 +119,30 @@ def mock_document() -> dict:
             "author": "john@example.com",
         },
     }
+
+
+@pytest.fixture
+def test_connector_definition(db_session: Session) -> ConnectorDefinition:
+    """Create a test connector definition."""
+    conn_def = ConnectorDefinition(
+        name="Test Connector",
+        connector_type="slack",
+        description="Test connector for unit tests",
+        config_schema={
+            "type": "object",
+            "properties": {
+                "workspace": {"type": "string"}
+            }
+        },
+        oauth_scopes=["channels:read", "users:read"],
+        supports_read=True,
+        supports_write=False,
+        version="1.0.0"
+    )
+    db_session.add(conn_def)
+    db_session.commit()
+    db_session.refresh(conn_def)
+    return conn_def
 
 
 @pytest.fixture

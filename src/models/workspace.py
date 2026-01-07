@@ -3,6 +3,7 @@
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from src.models.base import Base
@@ -26,6 +27,9 @@ class Workspace(Base):
         onupdate=func.now(),
         nullable=False,
     )
+    
+    # Relationships
+    connectors = relationship("Connector", back_populates="workspace")
 
     def __repr__(self) -> str:
         return f"<Workspace(id={self.id}, name='{self.name}')>"
