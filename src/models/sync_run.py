@@ -1,5 +1,7 @@
 """SyncRun model for tracking connector sync operations."""
 
+from enum import Enum
+
 from sqlalchemy import Column, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
@@ -7,6 +9,15 @@ from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
 from src.models.base import Base
+
+
+class SyncStatus(str, Enum):
+    """Enum for sync run statuses."""
+
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
 
 
 class SyncRun(Base):
@@ -59,6 +70,16 @@ class SyncRun(Base):
     
     # Relationships
     connector = relationship("Connector", back_populates="sync_runs")
+
+    @property
+    def cursor_state(self):
+        """Get cursor state dict."""
+        return self.cursor_state_json
+
+    @cursor_state.setter
+    def cursor_state(self, value):
+        """Set cursor state dict."""
+        self.cursor_state_json = value
 
     def __repr__(self) -> str:
         return f"<SyncRun(id={self.id}, connector_id={self.connector_id}, status='{self.status}')>"
