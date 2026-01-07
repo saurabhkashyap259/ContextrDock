@@ -158,8 +158,8 @@
 - [X] T077 [P] Implement OAuth2 helper in src/connectors/sdk/oauth.py (authorization flow, token refresh)
 - [X] T078 [P] Write test for rate limiter decorator in tests/unit/connectors/sdk/test_rate_limiter.py
 - [X] T079 [P] Implement rate limiter in src/connectors/sdk/rate_limiter.py (@rate_limit decorator)
-- [ ] T080 [P] Write test for pagination helper in tests/unit/connectors/sdk/test_pagination.py
-- [ ] T081 [P] Implement pagination helper in src/connectors/sdk/pagination.py (cursor-based pagination)
+- [X] T080 [P] Write test for pagination helper in tests/unit/connectors/sdk/test_pagination.py
+- [X] T081 [P] Implement pagination helper in src/connectors/sdk/pagination.py (cursor-based pagination)
 
 ### Slack Connector (US2)
 
