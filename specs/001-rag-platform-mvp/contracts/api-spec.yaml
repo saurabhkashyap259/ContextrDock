@@ -1,0 +1,955 @@
+openapi: 3.1.0
+info:
+  title: ContextDock API
+  version: 1.0.0
+  description: |
+    RAG + Agentic AI platform API for querying workplace knowledge and managing connectors.
+    
+    ## Authentication
+    All endpoints (except /health) require JWT Bearer token in Authorization header.
+    
+    ## Rate Limiting
+    - Query endpoints: 60 requests/minute per user
+    - Admin endpoints: 100 requests/minute per workspace
+  contact:
+    name: ContextDock API Support
+    url: https://github.com/contextdock/contextdock
+
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://api.contextdock.example.com
+    description: Production
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Query
+    description: Question answering and retrieval operations
+  - name: Connectors
+    description: Data source connector management
+  - name: Actions
+    description: Write-back action operations
+  - name: Admin
+    description: Administrative operations
+  - name: Health
+    description: System health and monitoring
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      tags: [Health]
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy]
+                  version:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /v1/query:
+    post:
+      summary: Submit a question and get an answer with citations
+      tags: [Query]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question]
+              properties:
+                question:
+                  type: string
+                  description: Natural language question
+                  example: "What is our API authentication strategy?"
+                conversation_id:
+                  type: string
+                  format: uuid
+                  description: Optional conversation ID for follow-up questions
+                filters:
+                  type: object
+                  description: Optional filters for retrieval
+                  properties:
+                    connector_types:
+                      type: array
+                      items:
+                        type: string
+                      example: ["confluence", "jira"]
+                    date_range:
+                      type: object
+                      properties:
+                        start:
+                          type: string
+                          format: date-time
+                        end:
+                          type: string
+                          format: date-time
+      responses:
+        '200':
+          description: Answer with citations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /v1/conversations:
+    get:
+      summary: List user's conversations
+      tags: [Query]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversations:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Conversation'
+                  total:
+                    type: integer
+
+  /v1/conversations/{conversation_id}/messages:
+    get:
+      summary: Get conversation message history
+      tags: [Query]
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Conversation messages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversation:
+                    $ref: '#/components/schemas/Conversation'
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+
+  /v1/connectors:
+    get:
+      summary: List all connectors in workspace
+      tags: [Connectors]
+      responses:
+        '200':
+          description: List of connectors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  connectors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Connector'
+    
+    post:
+      summary: Create a new connector
+      tags: [Connectors]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectorCreate'
+      responses:
+        '201':
+          description: Connector created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connector'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /v1/connectors/{connector_id}:
+    get:
+      summary: Get connector details
+      tags: [Connectors]
+      parameters:
+        - $ref: '#/components/parameters/ConnectorId'
+      responses:
+        '200':
+          description: Connector details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorDetail'
+    
+    patch:
+      summary: Update connector configuration
+      tags: [Connectors]
+      parameters:
+        - $ref: '#/components/parameters/ConnectorId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectorUpdate'
+      responses:
+        '200':
+          description: Connector updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connector'
+    
+    delete:
+      summary: Delete a connector
+      tags: [Connectors]
+      parameters:
+        - $ref: '#/components/parameters/ConnectorId'
+      responses:
+        '204':
+          description: Connector deleted
+
+  /v1/connectors/{connector_id}/sync:
+    post:
+      summary: Trigger manual sync for a connector
+      tags: [Connectors]
+      parameters:
+        - $ref: '#/components/parameters/ConnectorId'
+      responses:
+        '202':
+          description: Sync initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sync_run_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [queued]
+
+  /v1/connectors/{connector_id}/sync-runs:
+    get:
+      summary: Get sync history for a connector
+      tags: [Connectors]
+      parameters:
+        - $ref: '#/components/parameters/ConnectorId'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Sync run history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sync_runs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SyncRun'
+
+  /v1/actions:
+    post:
+      summary: Create a write-back action (preview only, not executed)
+      tags: [Actions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/CreateJiraTicketRequest'
+                - $ref: '#/components/schemas/CreateConfluencePageRequest'
+      responses:
+        '201':
+          description: Action preview created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentAction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /v1/actions/{action_id}/approve:
+    post:
+      summary: Approve and execute a write-back action
+      tags: [Actions]
+      parameters:
+        - name: action_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                edited_preview:
+                  type: object
+                  description: Optional edited preview fields
+      responses:
+        '200':
+          description: Action executed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentAction'
+        '409':
+          description: Action expired or already executed
+
+  /v1/actions/{action_id}:
+    get:
+      summary: Get action details and status
+      tags: [Actions]
+      parameters:
+        - name: action_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Action details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentAction'
+    
+    delete:
+      summary: Cancel a pending action
+      tags: [Actions]
+      parameters:
+        - name: action_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Action cancelled
+
+  /v1/admin/audit-logs:
+    get:
+      summary: Query audit logs
+      tags: [Admin]
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: actor_user_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 500
+      responses:
+        '200':
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditLog'
+                  total:
+                    type: integer
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /v1/admin/users:
+    get:
+      summary: List workspace users
+      tags: [Admin]
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+
+  /v1/admin/users/{user_id}/identity-mappings:
+    get:
+      summary: Get user's connector identity mappings
+      tags: [Admin]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Identity mappings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user_id:
+                    type: string
+                    format: uuid
+                  email:
+                    type: string
+                  connector_identities:
+                    type: object
+                    additionalProperties:
+                      type: string
+                    example:
+                      slack: "U123ABC"
+                      jira: "account-id-456"
+    
+    patch:
+      summary: Update user's connector identity mappings (manual override)
+      tags: [Admin]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                connector_identities:
+                  type: object
+                  additionalProperties:
+                    type: string
+      responses:
+        '200':
+          description: Mappings updated
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ConnectorId:
+      name: connector_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    QueryResponse:
+      type: object
+      required: [answer, citations, conversation_id]
+      properties:
+        answer:
+          type: string
+          description: Generated answer text
+          example: "Our API uses JWT token authentication..."
+        citations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Citation'
+        conversation_id:
+          type: string
+          format: uuid
+        supporting_passages:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportingPassage'
+        metadata:
+          type: object
+          properties:
+            sources_searched:
+              type: integer
+            retrieval_time_ms:
+              type: integer
+            generation_time_ms:
+              type: integer
+
+    Citation:
+      type: object
+      required: [document_id, title, url, source_type]
+      properties:
+        document_id:
+          type: string
+          format: uuid
+        chunk_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+        source_type:
+          type: string
+          example: "confluence_page"
+        last_indexed:
+          type: string
+          format: date-time
+
+    SupportingPassage:
+      type: object
+      properties:
+        chunk_id:
+          type: string
+          format: uuid
+        content:
+          type: string
+        relevance_score:
+          type: number
+          format: float
+
+    Conversation:
+      type: object
+      required: [id, user_id, channel_type, created_at, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        channel_type:
+          type: string
+          enum: [web, slack_dm, slack_channel]
+        external_channel_id:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Message:
+      type: object
+      required: [id, conversation_id, role, content, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        conversation_id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        citations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Citation'
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    Connector:
+      type: object
+      required: [id, type, name, status, sync_schedule, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          example: "slack"
+        name:
+          type: string
+          example: "Company Slack"
+        status:
+          type: string
+          enum: [active, error, disabled]
+        sync_schedule:
+          type: string
+          enum: [hourly, 6hours, daily]
+        last_sync_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_error:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ConnectorDetail:
+      allOf:
+        - $ref: '#/components/schemas/Connector'
+        - type: object
+          properties:
+            config:
+              type: object
+              description: Connector-specific configuration (credentials excluded)
+              example:
+                channels: ["general", "engineering"]
+            stats:
+              type: object
+              properties:
+                document_count:
+                  type: integer
+                last_sync_duration_seconds:
+                  type: integer
+
+    ConnectorCreate:
+      type: object
+      required: [type, name, config, credentials]
+      properties:
+        type:
+          type: string
+          example: "jira"
+        name:
+          type: string
+          example: "Company Jira"
+        config:
+          type: object
+          description: Type-specific configuration
+          example:
+            projects: ["PROJ", "ENG"]
+        credentials:
+          type: object
+          description: OAuth tokens or API keys
+          example:
+            api_token: "secret-token"
+        sync_schedule:
+          type: string
+          enum: [hourly, 6hours, daily]
+          default: "6hours"
+
+    ConnectorUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        config:
+          type: object
+        sync_schedule:
+          type: string
+          enum: [hourly, 6hours, daily]
+        status:
+          type: string
+          enum: [active, disabled]
+
+    SyncRun:
+      type: object
+      required: [id, connector_id, started_at, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        connector_id:
+          type: string
+          format: uuid
+        started_at:
+          type: string
+          format: date-time
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: [running, success, partial, failed]
+        documents_added:
+          type: integer
+        documents_updated:
+          type: integer
+        documents_deleted:
+          type: integer
+        error_summary:
+          type: string
+          nullable: true
+
+    AgentAction:
+      type: object
+      required: [id, user_id, type, status, preview, created_at, expires_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        conversation_id:
+          type: string
+          format: uuid
+          nullable: true
+        type:
+          type: string
+          example: "create_jira_ticket"
+        status:
+          type: string
+          enum: [draft, approved, executing, executed, failed, cancelled]
+        preview:
+          type: object
+          description: Structured editable preview
+        execution_result:
+          type: object
+          nullable: true
+          properties:
+            created_url:
+              type: string
+            external_id:
+              type: string
+        error_message:
+          type: string
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+        approved_at:
+          type: string
+          format: date-time
+          nullable: true
+        executed_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    CreateJiraTicketRequest:
+      type: object
+      required: [type, context]
+      properties:
+        type:
+          type: string
+          enum: [create_jira_ticket]
+        conversation_id:
+          type: string
+          format: uuid
+          nullable: true
+        context:
+          type: object
+          required: [summary, description]
+          properties:
+            summary:
+              type: string
+              example: "API authentication bug"
+            description:
+              type: string
+              example: "JWT tokens expire after 1 minute instead of 15 minutes"
+            project:
+              type: string
+              example: "ENG"
+            issue_type:
+              type: string
+              example: "Bug"
+            priority:
+              type: string
+              example: "High"
+
+    CreateConfluencePageRequest:
+      type: object
+      required: [type, context]
+      properties:
+        type:
+          type: string
+          enum: [create_confluence_page]
+        conversation_id:
+          type: string
+          format: uuid
+          nullable: true
+        context:
+          type: object
+          required: [title, content]
+          properties:
+            title:
+              type: string
+              example: "API Authentication Guide"
+            content:
+              type: string
+              description: Page content in Confluence storage format
+            space:
+              type: string
+              example: "ENG"
+            parent_page_id:
+              type: string
+              nullable: true
+
+    User:
+      type: object
+      required: [id, email, name, role, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [admin, member]
+        created_at:
+          type: string
+          format: date-time
+
+    AuditLog:
+      type: object
+      required: [id, action, target_type, target_id, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        actor_user_id:
+          type: string
+          format: uuid
+          nullable: true
+        actor_name:
+          type: string
+          nullable: true
+        action:
+          type: string
+          example: "connector.created"
+        target_type:
+          type: string
+          example: "Connector"
+        target_id:
+          type: string
+          format: uuid
+        details:
+          type: object
+          description: Action-specific details
+        ip_address:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          example: "bad_request"
+        message:
+          type: string
+          example: "Invalid connector configuration"
+        details:
+          type: object
+          nullable: true
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Unauthorized - missing or invalid token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Forbidden:
+      description: Forbidden - insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
