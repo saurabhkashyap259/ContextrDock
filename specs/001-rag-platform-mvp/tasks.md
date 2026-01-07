@@ -144,11 +144,11 @@
 
 ### Database Models (US2)
 
-- [ ] T069 Write test for Connector model in tests/unit/models/test_connector.py
-- [ ] T070 Implement Connector model in src/models/connector.py (type, config_json, credentials_encrypted, sync_schedule)
-- [ ] T071 [P] Write test for SyncRun model in tests/unit/models/test_sync_run.py
-- [ ] T072 [P] Implement SyncRun model in src/models/sync_run.py (status, documents_added/updated/deleted, cursor_state_json)
-- [ ] T073 Create Alembic migration: Phase 4 US2 entities (Connector, SyncRun - 2 entities)
+- [X] T069 Write test for Connector model in tests/unit/models/test_connector.py
+- [X] T070 Implement Connector model in src/models/connector.py (type, config_json, credentials_encrypted, sync_schedule)
+- [X] T071 [P] Write test for SyncRun model in tests/unit/models/test_sync_run.py
+- [X] T072 [P] Implement SyncRun model in src/models/sync_run.py (status, documents_added/updated/deleted, cursor_state_json)
+- [X] T073 Create Alembic migration: Phase 4 US2 entities (Connector, SyncRun - 2 entities)
 
 ### Connector SDK (US2)
 
