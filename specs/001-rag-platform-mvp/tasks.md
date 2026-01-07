@@ -219,11 +219,11 @@
 
 ### Celery Workers (US2)
 
-- [ ] T106 Write test for sync task in tests/unit/workers/test_sync_task.py
-- [ ] T107 Implement sync Celery task in src/workers/sync_task.py (fetch documents, run ingestion pipeline)
-- [ ] T108 [P] Write test for Celery Beat schedule in tests/unit/workers/test_beat_schedule.py
-- [ ] T109 [P] Implement Celery Beat scheduler in src/workers/celery_app.py (per-connector cron schedules)
-- [ ] T110 [P] Implement retry logic with exponential backoff in src/workers/retry_policy.py
+- [X] T106 Write test for sync task in tests/unit/workers/test_sync_task.py
+- [X] T107 Implement sync Celery task in src/workers/sync_task.py (fetch documents, run ingestion pipeline)
+- [X] T108 [P] Write test for Celery Beat schedule in tests/unit/workers/test_beat_schedule.py
+- [X] T109 [P] Implement Celery Beat scheduler in src/workers/celery_app.py (per-connector cron schedules)
+- [X] T110 [P] Implement retry logic with exponential backoff in src/workers/retry_policy.py
 
 ### API Endpoints (US2)
 
