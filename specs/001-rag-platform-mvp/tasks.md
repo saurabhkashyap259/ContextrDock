@@ -227,27 +227,27 @@
 
 ### API Endpoints (US2)
 
-- [ ] T111 Write test for GET /v1/connectors in tests/integration/api/test_connectors_list.py
-- [ ] T112 Implement GET /v1/connectors in src/api/routes/connectors.py
-- [ ] T113 [P] Write test for POST /v1/connectors in tests/integration/api/test_connectors_create.py
-- [ ] T114 [P] Implement POST /v1/connectors in src/api/routes/connectors.py (validate config, encrypt credentials)
-- [ ] T115 [P] Write test for PATCH /v1/connectors/{id} in tests/integration/api/test_connectors_update.py
-- [ ] T116 [P] Implement PATCH /v1/connectors/{id} in src/api/routes/connectors.py
-- [ ] T117 [P] Write test for DELETE /v1/connectors/{id} in tests/integration/api/test_connectors_delete.py
-- [ ] T118 [P] Implement DELETE /v1/connectors/{id} in src/api/routes/connectors.py
-- [ ] T119 Write test for POST /v1/connectors/{id}/sync in tests/integration/api/test_connectors_sync.py
-- [ ] T120 Implement POST /v1/connectors/{id}/sync in src/api/routes/connectors.py (trigger manual sync)
-- [ ] T121 [P] Write test for GET /v1/connectors/{id}/sync-runs in tests/integration/api/test_sync_runs.py
-- [ ] T122 [P] Implement GET /v1/connectors/{id}/sync-runs in src/api/routes/connectors.py
-- [ ] T123 Create Pydantic schemas in src/api/schemas/connector.py (ConnectorCreate, ConnectorUpdate, SyncRun)
+- [X] T111 Write test for GET /v1/connectors in tests/integration/api/test_connectors_list.py
+- [X] T112 Implement GET /v1/connectors in src/api/routes/connectors.py
+- [X] T113 [P] Write test for POST /v1/connectors in tests/integration/api/test_connectors_create.py
+- [X] T114 [P] Implement POST /v1/connectors in src/api/routes/connectors.py (validate config, encrypt credentials)
+- [X] T115 [P] Write test for PATCH /v1/connectors/{id} in tests/integration/api/test_connectors_update.py
+- [X] T116 [P] Implement PATCH /v1/connectors/{id} in src/api/routes/connectors.py
+- [X] T117 [P] Write test for DELETE /v1/connectors/{id} in tests/integration/api/test_connectors_delete.py
+- [X] T118 [P] Implement DELETE /v1/connectors/{id} in src/api/routes/connectors.py
+- [X] T119 Write test for POST /v1/connectors/{id}/sync in tests/integration/api/test_connectors_sync.py
+- [X] T120 Implement POST /v1/connectors/{id}/sync in src/api/routes/connectors.py (trigger manual sync)
+- [X] T121 [P] Write test for GET /v1/connectors/{id}/sync-runs in tests/integration/api/test_sync_runs.py
+- [X] T122 [P] Implement GET /v1/connectors/{id}/sync-runs in src/api/routes/connectors.py
+- [X] T123 Create Pydantic schemas in src/api/schemas/connector.py (ConnectorCreate, ConnectorUpdate, SyncRun)
 
 ### Integration Tests (US2)
 
-- [ ] T124 Write end-to-end test for US2 Scenario 1 in tests/integration/scenarios/test_us2_scenario1.py (add connector, validate, sync)
-- [ ] T125 Write end-to-end test for US2 Scenario 2 in tests/integration/scenarios/test_us2_scenario2.py (manual sync now)
-- [ ] T126 Write end-to-end test for US2 Scenario 3 in tests/integration/scenarios/test_us2_scenario3.py (view connector status)
-- [ ] T127 Write end-to-end test for US2 Scenario 4 in tests/integration/scenarios/test_us2_scenario4.py (rate limit handling)
-- [ ] T128 Write end-to-end test for US2 Scenario 5 in tests/integration/scenarios/test_us2_scenario5.py (file upload indexing)
+- [X] T124 Write end-to-end test for US2 Scenario 1 in tests/integration/scenarios/test_us2_scenario1.py (add connector, validate, sync)
+- [X] T125 Write end-to-end test for US2 Scenario 2 in tests/integration/scenarios/test_us2_scenario2.py (manual sync now)
+- [X] T126 Write end-to-end test for US2 Scenario 3 in tests/integration/scenarios/test_us2_scenario3.py (view connector status)
+- [X] T127 Write end-to-end test for US2 Scenario 4 in tests/integration/scenarios/test_us2_scenario4.py (rate limit handling)
+- [X] T128 Write end-to-end test for US2 Scenario 5 in tests/integration/scenarios/test_us2_scenario5.py (file upload indexing)
 
 ---
 
