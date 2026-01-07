@@ -263,17 +263,17 @@
 
 - [X] T129 Write test for ACL validator in tests/unit/services/test_acl_validator.py (fail-closed for undefined ACLs)
 - [X] T130 Implement ACL validator in src/services/acl_validator.py (check user permissions against chunk acl_json)
-- [ ] T131 [P] Write test for permission check performance in tests/integration/performance/test_acl_performance.py (<100ms)
-- [ ] T132 Enhance retrieval pipeline in src/retrieval/hybrid_search.py to apply ACL filtering before results
-- [ ] T133 [P] Write test for identity mapping admin endpoint in tests/integration/api/test_identity_mappings.py
-- [ ] T134 [P] Implement GET/PATCH /v1/admin/users/{id}/identity-mappings in src/api/routes/admin.py
+- [X] T131 [P] Write test for permission check performance in tests/integration/performance/test_acl_performance.py (<100ms)
+- [X] T132 Enhance retrieval pipeline in src/retrieval/hybrid_search.py to apply ACL filtering before results
+- [X] T133 [P] Write test for identity mapping admin endpoint in tests/integration/api/test_identity_mappings.py
+- [X] T134 [P] Implement GET/PATCH /v1/admin/users/{id}/identity-mappings in src/api/routes/admin.py
 
 ### Integration Tests (US3)
 
-- [ ] T135 Write end-to-end test for US3 Scenario 1 in tests/integration/scenarios/test_us3_scenario1.py (restricted channel filtering)
-- [ ] T136 Write end-to-end test for US3 Scenario 2 in tests/integration/scenarios/test_us3_scenario2.py (unauthorized document excluded)
-- [ ] T137 Write end-to-end test for US3 Scenario 3 in tests/integration/scenarios/test_us3_scenario3.py (undefined ACL fail-closed)
-- [ ] T138 Write end-to-end test for US3 Scenario 4 in tests/integration/scenarios/test_us3_scenario4.py (permission change after sync)
+- [X] T135 Write end-to-end test for US3 Scenario 1 in tests/integration/scenarios/test_us3_scenario1.py (restricted channel filtering)
+- [X] T136 Write end-to-end test for US3 Scenario 2 in tests/integration/scenarios/test_us3_scenario2.py (unauthorized document excluded)
+- [X] T137 Write end-to-end test for US3 Scenario 3 in tests/integration/scenarios/test_us3_scenario3.py (undefined ACL fail-closed)
+- [X] T138 Write end-to-end test for US3 Scenario 4 in tests/integration/scenarios/test_us3_scenario4.py (permission change after sync)
 
 ---
 

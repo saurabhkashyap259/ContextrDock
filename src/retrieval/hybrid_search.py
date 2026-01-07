@@ -1,11 +1,15 @@
 """Hybrid search combining BM25 keyword search and vector similarity with RRF."""
 
-from typing import Any, Dict, List
+import logging
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Session
 
 from src.retrieval.keyword_search import search_by_keywords
 from src.retrieval.vector_search import search_by_vector
+from src.services.acl_validator import ACLValidator
+
+logger = logging.getLogger(__name__)
 
 
 def reciprocal_rank_fusion(
@@ -69,6 +73,7 @@ def hybrid_search(
     db_session: Session,
     query: str,
     workspace_id: int,
+    user: Optional[Dict[str, Any]] = None,
     top_k: int = 10,
     keyword_weight: float = 0.5,
 ) -> List[Dict[str, Any]]:
@@ -79,22 +84,25 @@ def hybrid_search(
     This provides:
     - Lexical matching (keyword search) for exact terms
     - Semantic matching (vector search) for meaning/intent
+    - Permission-aware filtering (ACL validation)
     
     Args:
         db_session: Database session
         query: Search query
         workspace_id: Workspace ID for filtering
+        user: User object with connector_identities for ACL filtering (optional)
         top_k: Maximum number of results to return
         keyword_weight: Weight for keyword vs vector (not used in RRF, kept for API compatibility)
         
     Returns:
-        Merged and ranked search results
+        Merged, ranked, and ACL-filtered search results
         
     Example:
         >>> results = hybrid_search(
         ...     db_session=session,
         ...     query="OAuth authentication",
         ...     workspace_id=1,
+        ...     user={"id": 1, "connector_identities": {...}},
         ...     top_k=5,
         ... )
         >>> results[0]["title"]
@@ -123,5 +131,70 @@ def hybrid_search(
     # Merge using Reciprocal Rank Fusion
     merged_results = reciprocal_rank_fusion(keyword_results, vector_results, k=60)
     
-    # Return top K results
-    return merged_results[:top_k]
+    # Apply ACL filtering if user provided
+    if user:
+        filtered_results = apply_acl_filtering(user, merged_results)
+        logger.info(
+            f"ACL filtering: {len(merged_results)} results -> {len(filtered_results)} "
+            f"allowed for user {user.get('id')}"
+        )
+    else:
+        filtered_results = merged_results
+        logger.warning("No user provided, skipping ACL filtering")
+    
+    # Return top K results after ACL filtering
+    return filtered_results[:top_k]
+
+
+def apply_acl_filtering(
+    user: Dict[str, Any],
+    results: List[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    """
+    Filter search results based on user permissions.
+    
+    Uses ACLValidator to check if user has access to each result chunk.
+    Implements fail-closed security: if ACL check fails, result is excluded.
+    
+    Args:
+        user: User object with connector_identities
+        results: List of search results with acl_json field
+        
+    Returns:
+        Filtered list containing only results user can access
+    """
+    if not user:
+        logger.warning("No user provided to apply_acl_filtering, returning empty list")
+        return []
+    
+    acl_validator = ACLValidator()
+    filtered_results = []
+    
+    denied_count = 0
+    undefined_count = 0
+    
+    for result in results:
+        acl_metadata = result.get("acl_json")
+        
+        # Track undefined ACLs for logging
+        if acl_metadata is None:
+            undefined_count += 1
+        
+        # Check access
+        acl_result = acl_validator.check_access(user, acl_metadata)
+        
+        if acl_result.allowed:
+            filtered_results.append(result)
+        else:
+            denied_count += 1
+            logger.debug(
+                f"Access denied to chunk {result.get('chunk_id')}: {acl_result.reason}"
+            )
+    
+    # Log filtering summary
+    logger.info(
+        f"ACL filtering summary: {len(filtered_results)} allowed, "
+        f"{denied_count} denied, {undefined_count} undefined ACLs"
+    )
+    
+    return filtered_results
