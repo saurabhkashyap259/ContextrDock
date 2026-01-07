@@ -154,10 +154,10 @@
 
 - [X] T074 Write test for ConnectorBase abstract class in tests/unit/connectors/sdk/test_base.py
 - [X] T075 Implement ConnectorBase in src/connectors/sdk/base.py (lifecycle hooks: sync, fetch_page, extract_acl)
-- [ ] T076 [P] Write test for OAuth2 helper in tests/unit/connectors/sdk/test_oauth.py
-- [ ] T077 [P] Implement OAuth2 helper in src/connectors/sdk/oauth.py (authorization flow, token refresh)
-- [ ] T078 [P] Write test for rate limiter decorator in tests/unit/connectors/sdk/test_rate_limiter.py
-- [ ] T079 [P] Implement rate limiter in src/connectors/sdk/rate_limiter.py (@rate_limit decorator)
+- [X] T076 [P] Write test for OAuth2 helper in tests/unit/connectors/sdk/test_oauth.py
+- [X] T077 [P] Implement OAuth2 helper in src/connectors/sdk/oauth.py (authorization flow, token refresh)
+- [X] T078 [P] Write test for rate limiter decorator in tests/unit/connectors/sdk/test_rate_limiter.py
+- [X] T079 [P] Implement rate limiter in src/connectors/sdk/rate_limiter.py (@rate_limit decorator)
 - [ ] T080 [P] Write test for pagination helper in tests/unit/connectors/sdk/test_pagination.py
 - [ ] T081 [P] Implement pagination helper in src/connectors/sdk/pagination.py (cursor-based pagination)
 
