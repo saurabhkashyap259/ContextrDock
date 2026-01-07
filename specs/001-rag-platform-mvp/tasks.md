@@ -177,10 +177,10 @@
 
 ### Confluence Connector (US2)
 
-- [ ] T090 Write contract test for Confluence connector in tests/contract/connectors/test_confluence.py
-- [ ] T091 Implement ConfluenceConnector in src/connectors/confluence/connector.py (pages, spaces, hierarchy)
-- [ ] T092 [P] Implement Confluence ACL extractor in src/connectors/confluence/acl.py (space permissions, page restrictions)
-- [ ] T093 [P] Register Confluence connector definition in src/connectors/confluence/__init__.py
+- [X] T090 Write contract test for Confluence connector in tests/contract/connectors/test_confluence.py
+- [X] T091 Implement ConfluenceConnector in src/connectors/confluence/connector.py (pages, spaces, hierarchy)
+- [X] T092 [P] Implement Confluence ACL extractor in src/connectors/confluence/acl.py (space permissions, page restrictions)
+- [X] T093 [P] Register Confluence connector definition in src/connectors/confluence/__init__.py
 
 ### GitHub Connector (US2)
 
