@@ -86,14 +86,14 @@
 
 ### Ingestion Pipeline (US1)
 
-- [ ] T036 Write test for chunker in tests/unit/ingestion/test_chunker.py (500-1000 tokens, 100 overlap)
-- [ ] T037 Implement chunker in src/ingestion/chunker.py using LangChain RecursiveCharacterTextSplitter
-- [ ] T038 [P] Write test for embedding service in tests/unit/ingestion/test_embeddings.py
-- [ ] T039 [P] Implement embedding service in src/ingestion/embeddings.py (OpenAI text-embedding-3-small)
-- [ ] T040 [P] Write test for Qdrant client wrapper in tests/unit/integrations/test_vector_db.py (test abstract VectorDB interface)
-- [ ] T041 [P] Implement vector DB client in src/integrations/vector_db.py (abstract VectorDB base class + Qdrant/Weaviate/pgvector implementations for pluggable backends per FR-043)
-- [ ] T042 Write test for document ingestion pipeline in tests/unit/ingestion/test_pipeline.py
-- [ ] T043 Implement ingestion pipeline in src/ingestion/pipeline.py (chunk → embed → store in Qdrant + PostgreSQL)
+- [X] T036 Write test for chunker in tests/unit/ingestion/test_chunker.py (500-1000 tokens, 100 overlap)
+- [X] T037 Implement chunker in src/ingestion/chunker.py using LangChain RecursiveCharacterTextSplitter
+- [X] T038 [P] Write test for embedding service in tests/unit/ingestion/test_embeddings.py
+- [X] T039 [P] Implement embedding service in src/ingestion/embeddings.py (OpenAI text-embedding-3-small)
+- [X] T040 [P] Write test for Qdrant client wrapper in tests/unit/integrations/test_vector_db.py (test abstract VectorDB interface)
+- [X] T041 [P] Implement vector DB client in src/integrations/vector_db.py (abstract VectorDB base class + Qdrant/Weaviate/pgvector implementations for pluggable backends per FR-043)
+- [X] T042 Write test for document ingestion pipeline in tests/unit/ingestion/test_pipeline.py
+- [X] T043 Implement ingestion pipeline in src/ingestion/pipeline.py (chunk → embed → store in Qdrant + PostgreSQL)
 
 ### Retrieval Engine (US1)
 
