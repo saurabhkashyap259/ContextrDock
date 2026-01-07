@@ -117,20 +117,20 @@
 
 ### API Endpoints (US1)
 
-- [ ] T058 Write test for POST /v1/query endpoint in tests/integration/api/test_query.py
-- [ ] T059 Implement POST /v1/query in src/api/routes/query.py (question → retrieval → LLM → citations)
-- [ ] T060 [P] Write test for GET /v1/conversations endpoint in tests/integration/api/test_conversations.py
-- [ ] T061 [P] Implement GET /v1/conversations in src/api/routes/conversations.py
-- [ ] T062 [P] Write test for GET /v1/conversations/{id}/messages in tests/integration/api/test_conversation_messages.py
-- [ ] T063 [P] Implement GET /v1/conversations/{id}/messages in src/api/routes/conversations.py
-- [ ] T064 Create Pydantic schemas in src/api/schemas/query.py (QueryRequest, QueryResponse, Citation, Message)
+- [X] T058 Write test for POST /v1/query endpoint in tests/integration/api/test_query.py
+- [X] T059 Implement POST /v1/query in src/api/routes/query.py (question → retrieval → LLM → citations)
+- [X] T060 [P] Write test for GET /v1/conversations endpoint in tests/integration/api/test_conversations.py
+- [X] T061 [P] Implement GET /v1/conversations in src/api/routes/conversations.py
+- [X] T062 [P] Write test for GET /v1/conversations/{id}/messages in tests/integration/api/test_conversation_messages.py
+- [X] T063 [P] Implement GET /v1/conversations/{id}/messages in src/api/routes/conversations.py
+- [X] T064 Create Pydantic schemas in src/api/schemas/query.py (QueryRequest, QueryResponse, Citation, Message)
 
 ### Integration Tests (US1)
 
-- [ ] T065 Write end-to-end test for US1 Scenario 1 in tests/integration/scenarios/test_us1_scenario1.py (single source citation)
-- [ ] T066 Write end-to-end test for US1 Scenario 2 in tests/integration/scenarios/test_us1_scenario2.py (multi-source synthesis)
-- [ ] T067 Write end-to-end test for US1 Scenario 3 in tests/integration/scenarios/test_us1_scenario3.py (insufficient evidence)
-- [ ] T068 Write end-to-end test for US1 Scenario 4 in tests/integration/scenarios/test_us1_scenario4.py (last indexed timestamp)
+- [X] T065 Write end-to-end test for US1 Scenario 1 in tests/integration/scenarios/test_us1_scenario1.py (single source citation)
+- [X] T066 Write end-to-end test for US1 Scenario 2 in tests/integration/scenarios/test_us1_scenario2.py (multi-source synthesis)
+- [X] T067 Write end-to-end test for US1 Scenario 3 in tests/integration/scenarios/test_us1_scenario3.py (insufficient evidence)
+- [X] T068 Write end-to-end test for US1 Scenario 4 in tests/integration/scenarios/test_us1_scenario4.py (last indexed timestamp)
 
 ---
 
