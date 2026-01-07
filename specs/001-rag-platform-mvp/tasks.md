@@ -170,10 +170,10 @@
 
 ### Jira Connector (US2)
 
-- [ ] T086 Write contract test for Jira connector in tests/contract/connectors/test_jira.py (VCR.py cassette)
-- [ ] T087 Implement JiraConnector in src/connectors/jira/connector.py (issues, comments, projects)
-- [ ] T088 [P] Implement Jira ACL extractor in src/connectors/jira/acl.py (issue security level, project roles)
-- [ ] T089 [P] Register Jira connector definition in src/connectors/jira/__init__.py
+- [X] T086 Write contract test for Jira connector in tests/contract/connectors/test_jira.py (VCR.py cassette)
+- [X] T087 Implement JiraConnector in src/connectors/jira/connector.py (issues, comments, projects)
+- [X] T088 [P] Implement Jira ACL extractor in src/connectors/jira/acl.py (issue security level, project roles)
+- [X] T089 [P] Register Jira connector definition in src/connectors/jira/__init__.py
 
 ### Confluence Connector (US2)
 
