@@ -20,16 +20,16 @@
 
 ### Tasks
 
-- [ ] T001 Create Python project structure per plan.md (src/, tests/, .venv/, requirements.txt, pyproject.toml)
-- [ ] T002 [P] Initialize .venv virtual environment and install base dependencies (Python 3.11+)
-- [ ] T003 [P] Configure ruff in pyproject.toml (line-length=100, target-version=py311)
-- [ ] T004 [P] Configure mypy in pyproject.toml (strict=true, warn_return_any=true)
-- [ ] T005 [P] Create .gitignore with .venv/, __pycache__/, *.pyc, .pytest_cache/, htmlcov/
-- [ ] T006 [P] Set up pytest configuration in pyproject.toml (testpaths, asyncio_mode=auto)
-- [ ] T007 [P] Create docker-compose.yml with services: postgres, redis, qdrant
-- [ ] T008 [P] Create .env.example with all required environment variables (DATABASE_URL, REDIS_URL, QDRANT_URL, OPENAI_API_KEY, ANTHROPIC_API_KEY, OLLAMA_BASE_URL, SECRET_KEY, FERNET_KEY)
-- [ ] T009 [P] Create src/config/settings.py using Pydantic Settings for env management
-- [ ] T010 [P] Create tests/conftest.py with pytest fixtures (db_session, test_user, mock_connector)
+- [X] T001 Create Python project structure per plan.md (src/, tests/, .venv/, requirements.txt, pyproject.toml)
+- [X] T002 [P] Initialize .venv virtual environment and install base dependencies (Python 3.11+)
+- [X] T003 [P] Configure ruff in pyproject.toml (line-length=100, target-version=py311)
+- [X] T004 [P] Configure mypy in pyproject.toml (strict=true, warn_return_any=true)
+- [X] T005 [P] Create .gitignore with .venv/, __pycache__/, *.pyc, .pytest_cache/, htmlcov/
+- [X] T006 [P] Set up pytest configuration in pyproject.toml (testpaths, asyncio_mode=auto)
+- [X] T007 [P] Create docker-compose.yml with services: postgres, redis, qdrant
+- [X] T008 [P] Create .env.example with all required environment variables (DATABASE_URL, REDIS_URL, QDRANT_URL, OPENAI_API_KEY, ANTHROPIC_API_KEY, OLLAMA_BASE_URL, SECRET_KEY, FERNET_KEY)
+- [X] T009 [P] Create src/config/settings.py using Pydantic Settings for env management
+- [X] T010 [P] Create tests/conftest.py with pytest fixtures (db_session, test_user, mock_connector)
 
 **Independent Test**: Run `pytest tests/` (should pass with empty test suite), verify `ruff check src/` and `mypy src/` pass with no errors.
 
