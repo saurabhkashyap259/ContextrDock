@@ -184,10 +184,24 @@
 
 ### GitHub Connector (US2)
 
-- [ ] T094 Write contract test for GitHub connector in tests/contract/connectors/test_github.py
-- [ ] T095 Implement GitHubConnector in src/connectors/github/connector.py (repos, issues, PRs, files)
-- [ ] T096 [P] Implement GitHub ACL extractor in src/connectors/github/acl.py (repo visibility, branch permissions)
-- [ ] T097 [P] Register GitHub connector definition in src/connectors/github/__init__.py
+- [X] T094 Write contract test for GitHub connector in tests/contract/connectors/test_github.py
+- [X] T095 Implement GitHubConnector in src/connectors/github/connector.py (repos, issues, PRs, files)
+- [X] T096 [P] Implement GitHub ACL extractor in src/connectors/github/acl.py (repo visibility, branch permissions)
+- [X] T097 [P] Register GitHub connector definition in src/connectors/github/__init__.py
+
+### Figma Connector (US2)
+
+- [X] T098 Write contract test for Figma connector in tests/contract/connectors/test_figma.py
+- [X] T099 Implement FigmaConnector in src/connectors/figma/connector.py (files, comments, versions)
+- [X] T100 [P] Implement Figma ACL extractor in src/connectors/figma/acl.py (project permissions, file sharing)
+- [X] T101 [P] Register Figma connector definition in src/connectors/figma/__init__.py
+
+### Dropbox Connector (US2)
+
+- [X] T102 Write contract test for Dropbox connector in tests/contract/connectors/test_dropbox.py
+- [X] T103 Implement DropboxConnector in src/connectors/dropbox/connector.py (files, folders, shared links)
+- [X] T104 [P] Implement Dropbox ACL extractor in src/connectors/dropbox/acl.py (folder permissions, shared links)
+- [X] T105 [P] Register Dropbox connector definition in src/connectors/dropbox/__init__.py
 
 ### Figma Connector (US2)
 
