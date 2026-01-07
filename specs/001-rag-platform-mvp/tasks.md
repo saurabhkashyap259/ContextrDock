@@ -261,8 +261,8 @@
 
 ### ACL Enforcement (US3)
 
-- [ ] T129 Write test for ACL validator in tests/unit/services/test_acl_validator.py (fail-closed for undefined ACLs)
-- [ ] T130 Implement ACL validator in src/services/acl_validator.py (check user permissions against chunk acl_json)
+- [X] T129 Write test for ACL validator in tests/unit/services/test_acl_validator.py (fail-closed for undefined ACLs)
+- [X] T130 Implement ACL validator in src/services/acl_validator.py (check user permissions against chunk acl_json)
 - [ ] T131 [P] Write test for permission check performance in tests/integration/performance/test_acl_performance.py (<100ms)
 - [ ] T132 Enhance retrieval pipeline in src/retrieval/hybrid_search.py to apply ACL filtering before results
 - [ ] T133 [P] Write test for identity mapping admin endpoint in tests/integration/api/test_identity_mappings.py
