@@ -163,10 +163,10 @@
 
 ### Slack Connector (US2)
 
-- [ ] T082 Write contract test for Slack connector in tests/contract/connectors/test_slack.py (VCR.py cassette)
-- [ ] T083 Implement SlackConnector in src/connectors/slack/connector.py (channels, threads, users)
-- [ ] T084 [P] Implement Slack ACL extractor in src/connectors/slack/acl.py (channel membership, private/public)
-- [ ] T085 [P] Register Slack connector definition in src/connectors/slack/__init__.py
+- [X] T082 Write contract test for Slack connector in tests/contract/connectors/test_slack.py (VCR.py cassette)
+- [X] T083 Implement SlackConnector in src/connectors/slack/connector.py (channels, threads, users)
+- [X] T084 [P] Implement Slack ACL extractor in src/connectors/slack/acl.py (channel membership, private/public)
+- [X] T085 [P] Register Slack connector definition in src/connectors/slack/__init__.py
 
 ### Jira Connector (US2)
 
