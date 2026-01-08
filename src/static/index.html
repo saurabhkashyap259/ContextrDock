@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ContextDock - AI-powered workplace knowledge assistant">
+    <title>ContextDock - Workplace Knowledge Assistant</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="app" role="application" aria-label="ContextDock Chat Interface">
+        <!-- Header -->
+        <header class="app-header" role="banner">
+            <h1 class="app-title">ContextDock</h1>
+            <p class="app-subtitle">Your AI-powered workplace knowledge assistant</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main" role="main">
+            <!-- Chat Messages Container -->
+            <div 
+                class="chat-messages" 
+                id="chat-messages" 
+                role="log" 
+                aria-live="polite" 
+                aria-label="Chat messages"
+                aria-relevant="additions"
+            >
+                <!-- Welcome Message -->
+                <div class="message message-assistant" role="article">
+                    <div class="message-avatar" aria-hidden="true">🤖</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-author">ContextDock Assistant</span>
+                            <time class="message-time" datetime=""></time>
+                        </div>
+                        <div class="message-text">
+                            <p>Welcome! I can help you find information from your connected workplace tools.</p>
+                            <p>Try asking questions like:</p>
+                            <ul>
+                                <li>"What's the status of the Q4 roadmap?"</li>
+                                <li>"Find all conversations about the new API design"</li>
+                                <li>"Show me recent updates from the engineering team"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div 
+                class="loading-indicator" 
+                id="loading-indicator" 
+                role="status" 
+                aria-live="assertive" 
+                aria-label="Loading response"
+                style="display: none;"
+            >
+                <span class="loading-spinner" aria-hidden="true"></span>
+                <span class="loading-text">Searching your workspace...</span>
+            </div>
+        </main>
+
+        <!-- Input Area -->
+        <footer class="app-footer" role="contentinfo">
+            <form 
+                class="message-form" 
+                id="message-form" 
+                role="search"
+                aria-label="Send message"
+            >
+                <div class="input-container">
+                    <label for="message-input" class="visually-hidden">Type your question</label>
+                    <textarea 
+                        id="message-input" 
+                        class="message-input" 
+                        placeholder="Ask a question about your workplace..."
+                        aria-label="Message input"
+                        aria-required="true"
+                        rows="1"
+                        maxlength="5000"
+                    ></textarea>
+                    <button 
+                        type="submit" 
+                        class="send-button" 
+                        id="send-button"
+                        aria-label="Send message"
+                        title="Send message (Enter)"
+                    >
+                        <span class="send-icon" aria-hidden="true">➤</span>
+                        <span class="visually-hidden">Send</span>
+                    </button>
+                </div>
+                <div class="input-hint" aria-live="polite">
+                    <span id="char-count">0 / 5000</span>
+                    <span class="keyboard-hint">Press Enter to send, Shift+Enter for new line</span>
+                </div>
+            </form>
+        </footer>
+    </div>
+
+    <!-- Citation Modal -->
+    <div 
+        class="modal" 
+        id="citation-modal" 
+        role="dialog" 
+        aria-labelledby="modal-title" 
+        aria-modal="true"
+        style="display: none;"
+    >
+        <div class="modal-overlay" aria-hidden="true"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title" class="modal-title">Citation Details</h2>
+                <button 
+                    class="modal-close" 
+                    id="modal-close"
+                    aria-label="Close citation details"
+                    title="Close (Escape)"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Citation content populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Alert -->
+    <div 
+        class="alert alert-error" 
+        id="error-alert" 
+        role="alert" 
+        aria-live="assertive"
+        style="display: none;"
+    >
+        <span class="alert-icon" aria-hidden="true">⚠️</span>
+        <span class="alert-message" id="error-message"></span>
+        <button 
+            class="alert-close" 
+            id="error-close"
+            aria-label="Dismiss error"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>

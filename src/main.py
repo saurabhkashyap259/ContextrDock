@@ -1,7 +1,9 @@
 """FastAPI application entry point."""
 
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from src.config import settings
 from src.api.routes import query, conversations
@@ -28,6 +30,11 @@ app.add_middleware(
 app.include_router(query.router)
 app.include_router(conversations.router)
 
+# Mount static files for web UI (T185)
+static_dir = Path(__file__).parent / "static"
+if static_dir.exists():
+    app.mount("/app", StaticFiles(directory=str(static_dir), html=True), name="static")
+
 
 @app.get("/health")
 async def health_check():
@@ -46,10 +53,15 @@ async def health_check():
 
 @app.get("/")
 async def root():
-    """Root endpoint."""
+    """Root endpoint - redirects to web UI in development."""
+    if settings.is_development and (Path(__file__).parent / "static" / "index.html").exists():
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url="/app")
+    
     return {
         "message": "ContextDock API",
         "docs": "/docs" if settings.is_development else None,
+        "web_ui": "/app" if settings.is_development else None,
     }
 
 
