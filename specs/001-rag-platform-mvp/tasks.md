@@ -407,9 +407,9 @@
 
 - [X] T197 Write test for structured logging in tests/unit/services/test_logger.py
 - [X] T198 Implement structlog configuration in src/services/logger.py (JSON format, trace IDs)
-- [ ] T199 [P] Add Prometheus metrics in src/api/middleware/metrics.py (query latency, sync success rate)
-- [ ] T200 [P] Write test for health check details in tests/integration/api/test_health_details.py
-- [ ] T201 Enhance /health endpoint with service status checks (database, redis, qdrant connectivity)
+- [X] T199 [P] Add Prometheus metrics in src/api/middleware/metrics.py (query latency, sync success rate)
+- [X] T200 [P] Write test for health check details in tests/integration/api/test_health_details.py
+- [X] T201 Enhance /health endpoint with service status checks (database, redis, qdrant connectivity)
 
 ### Performance Optimization
 

@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from src.config import settings
 from src.api.routes import query, conversations
+from src.api.middleware.metrics import prometheus_middleware, metrics_endpoint
 
 # Create FastAPI app
 app = FastAPI(
@@ -26,9 +27,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Prometheus metrics middleware
+app.middleware("http")(prometheus_middleware)
+
 # Include routers
 app.include_router(query.router)
 app.include_router(conversations.router)
+
+# Metrics endpoint
+app.get("/metrics")(metrics_endpoint)
 
 # Mount static files for web UI (T185)
 static_dir = Path(__file__).parent / "static"
@@ -39,16 +46,99 @@ if static_dir.exists():
 @app.get("/health")
 async def health_check():
     """
-    Health check endpoint.
+    Health check endpoint with service connectivity checks.
     
-    Returns basic application status and configuration info.
+    Returns detailed status of all services:
+    - Database (PostgreSQL)
+    - Redis
+    - Qdrant (vector database)
+    
+    Returns HTTP 200 if healthy/degraded, 503 if unhealthy.
     """
-    return {
-        "status": "healthy",
+    import time
+    from datetime import datetime
+    from sqlalchemy import text
+    from src.config.database import get_db
+    from src.integrations.vector_db import get_qdrant_client
+    from src.services.cache import get_redis_client
+    
+    services = {}
+    overall_status = "healthy"
+    
+    # Check database connectivity
+    try:
+        start = time.time()
+        db = next(get_db())
+        db.execute(text("SELECT 1"))
+        latency_ms = (time.time() - start) * 1000
+        services["database"] = {
+            "status": "up",
+            "latency_ms": round(latency_ms, 2)
+        }
+    except Exception as e:
+        services["database"] = {
+            "status": "down",
+            "error": str(e)
+        }
+        overall_status = "unhealthy"  # Database is critical
+    
+    # Check Redis connectivity
+    try:
+        start = time.time()
+        redis_client = get_redis_client()
+        redis_client.ping()
+        latency_ms = (time.time() - start) * 1000
+        services["redis"] = {
+            "status": "up",
+            "latency_ms": round(latency_ms, 2)
+        }
+    except Exception as e:
+        services["redis"] = {
+            "status": "down",
+            "error": str(e)
+        }
+        # Redis down is degraded, not unhealthy (caching is optional)
+        if overall_status == "healthy":
+            overall_status = "degraded"
+    
+    # Check Qdrant connectivity
+    try:
+        start = time.time()
+        qdrant_client = get_qdrant_client()
+        # Try to list collections as a connectivity test
+        qdrant_client.get_collections()
+        latency_ms = (time.time() - start) * 1000
+        services["qdrant"] = {
+            "status": "up",
+            "latency_ms": round(latency_ms, 2)
+        }
+    except Exception as e:
+        services["qdrant"] = {
+            "status": "down",
+            "error": str(e)
+        }
+        # Qdrant down is degraded (can fall back to keyword search)
+        if overall_status == "healthy":
+            overall_status = "degraded"
+    
+    response_data = {
+        "status": overall_status,
         "service": "contextdock-api",
         "version": "0.1.0",
         "environment": settings.environment,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "services": services
     }
+    
+    # Return 503 if unhealthy
+    if overall_status == "unhealthy":
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            status_code=503,
+            content=response_data
+        )
+    
+    return response_data
 
 
 @app.get("/")
