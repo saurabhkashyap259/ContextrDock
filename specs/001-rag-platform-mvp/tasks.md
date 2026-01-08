@@ -330,35 +330,35 @@
 - [X] T158 [P] Implement CreateConfluencePageAction in src/agents/create_confluence_page.py
 - [X] T159 [P] Write test for GitHub issue creation in tests/unit/agents/test_create_github_issue.py
 - [X] T160 [P] Implement CreateGitHubIssueAction in src/agents/create_github_issue.py
-- [ ] T161 Write test for preview expiration cleanup in tests/unit/agents/test_action_cleanup.py
-- [ ] T162 Implement Celery task for action expiration in src/workers/action_cleanup_task.py (hourly job)
+- [X] T161 Write test for preview expiration cleanup in tests/unit/agents/test_action_cleanup.py
+- [X] T162 Implement Celery task for action expiration in src/workers/action_cleanup_task.py (hourly job)
 
 ### API Endpoints (US5)
 
-- [ ] T163 Write test for POST /v1/actions in tests/integration/api/test_actions_create.py
-- [ ] T164 Implement POST /v1/actions in src/api/routes/actions.py (generate preview, dry-run permission check)
-- [ ] T165 [P] Write test for POST /v1/actions/{id}/approve in tests/integration/api/test_actions_approve.py
-- [ ] T166 [P] Implement POST /v1/actions/{id}/approve in src/api/routes/actions.py (execute action, create audit log)
-- [ ] T167 [P] Write test for GET /v1/actions/{id} in tests/integration/api/test_actions_get.py
-- [ ] T168 [P] Implement GET /v1/actions/{id} in src/api/routes/actions.py
-- [ ] T169 [P] Write test for DELETE /v1/actions/{id} in tests/integration/api/test_actions_cancel.py
-- [ ] T170 [P] Implement DELETE /v1/actions/{id} in src/api/routes/actions.py (cancel action)
-- [ ] T171 Create Pydantic schemas in src/api/schemas/action.py (AgentAction, ActionPreview, ActionResult)
+- [X] T163 Write test for POST /v1/actions in tests/integration/api/test_actions_create.py
+- [X] T164 Implement POST /v1/actions in src/api/routes/actions.py (generate preview, dry-run permission check)
+- [X] T165 [P] Write test for POST /v1/actions/{id}/approve in tests/integration/api/test_actions_approve.py
+- [X] T166 [P] Implement POST /v1/actions/{id}/approve in src/api/routes/actions.py (execute action, create audit log)
+- [X] T167 [P] Write test for GET /v1/actions/{id} in tests/integration/api/test_actions_get.py
+- [X] T168 [P] Implement GET /v1/actions/{id} in src/api/routes/actions.py
+- [X] T169 [P] Write test for DELETE /v1/actions/{id} in tests/integration/api/test_actions_cancel.py
+- [X] T170 [P] Implement DELETE /v1/actions/{id} in src/api/routes/actions.py (cancel action)
+- [X] T171 Create Pydantic schemas in src/api/schemas/action.py (AgentAction, ActionPreview, ActionResult)
 
 ### Audit Logging (US5)
 
-- [ ] T172 Write test for audit logger service in tests/unit/services/test_audit_logger.py
-- [ ] T173 Implement audit logger in src/services/audit_logger.py (log all write operations)
-- [ ] T174 [P] Write test for GET /v1/admin/audit-logs in tests/integration/api/test_audit_logs.py
-- [ ] T175 [P] Implement GET /v1/admin/audit-logs in src/api/routes/admin.py (filterable by action, user, date)
+- [X] T172 Write test for audit logger service in tests/unit/services/test_audit_logger.py
+- [X] T173 Implement audit logger in src/services/audit_logger.py (log all write operations)
+- [X] T174 [P] Write test for GET /v1/admin/audit-logs in tests/integration/api/test_audit_logs.py
+- [X] T175 [P] Implement GET /v1/admin/audit-logs in src/api/routes/admin.py (filterable by action, user, date)
 
 ### Integration Tests (US5)
 
-- [ ] T176 Write end-to-end test for US5 Scenario 1 in tests/integration/scenarios/test_us5_scenario1.py (generate preview)
-- [ ] T177 Write end-to-end test for US5 Scenario 2 in tests/integration/scenarios/test_us5_scenario2.py (edit and approve)
-- [ ] T178 Write end-to-end test for US5 Scenario 3 in tests/integration/scenarios/test_us5_scenario3.py (cancel action)
-- [ ] T179 Write end-to-end test for US5 Scenario 4 in tests/integration/scenarios/test_us5_scenario4.py (audit log entry)
-- [ ] T180 Write end-to-end test for US5 Scenario 5 in tests/integration/scenarios/test_us5_scenario5.py (permission error)
+- [X] T176 Write end-to-end test for US5 Scenario 1 in tests/integration/scenarios/test_us5_scenario1.py (generate preview)
+- [X] T177 Write end-to-end test for US5 Scenario 2 in tests/integration/scenarios/test_us5_scenario2.py (edit and approve)
+- [X] T178 Write end-to-end test for US5 Scenario 3 in tests/integration/scenarios/test_us5_scenario3.py (cancel action)
+- [X] T179 Write end-to-end test for US5 Scenario 4 in tests/integration/scenarios/test_us5_scenario4.py (audit log entry)
+- [X] T180 Write end-to-end test for US5 Scenario 5 in tests/integration/scenarios/test_us5_scenario5.py (permission error)
 
 ---
 
