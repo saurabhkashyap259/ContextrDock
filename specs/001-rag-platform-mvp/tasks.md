@@ -381,10 +381,10 @@
 
 ### Integration Tests (US6)
 
-- [ ] T187 Write end-to-end test for US6 Scenario 1 in tests/integration/scenarios/test_us6_scenario1.py (type question, get answer)
-- [ ] T188 Write end-to-end test for US6 Scenario 2 in tests/integration/scenarios/test_us6_scenario2.py (expand citation)
-- [ ] T189 Write end-to-end test for US6 Scenario 3 in tests/integration/scenarios/test_us6_scenario3.py (conversation history)
-- [ ] T190 Write end-to-end test for US6 Scenario 4 in tests/integration/scenarios/test_us6_scenario4.py (loading indicator)
+- [X] T187 Write end-to-end test for US6 Scenario 1 in tests/integration/scenarios/test_us6_scenario1.py (type question, get answer)
+- [X] T188 Write end-to-end test for US6 Scenario 2 in tests/integration/scenarios/test_us6_scenario2.py (expand citation)
+- [X] T189 Write end-to-end test for US6 Scenario 3 in tests/integration/scenarios/test_us6_scenario3.py (conversation history)
+- [X] T190 Write end-to-end test for US6 Scenario 4 in tests/integration/scenarios/test_us6_scenario4.py (loading indicator)
 
 ---
 
