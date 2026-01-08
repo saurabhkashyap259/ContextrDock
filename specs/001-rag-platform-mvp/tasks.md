@@ -287,20 +287,20 @@
 
 ### Slack Bot Implementation (US4)
 
-- [ ] T139 Write test for Slack event handler in tests/unit/integrations/test_slack_bot.py
-- [ ] T140 Implement Slack bot event listener in src/integrations/slack_bot.py (message events, slash commands, @mentions)
-- [ ] T141 [P] Write test for Slack message formatter in tests/unit/integrations/test_slack_formatter.py
-- [ ] T142 [P] Implement Slack message formatter in src/integrations/slack_formatter.py (citations as blocks)
-- [ ] T143 Write test for ephemeral response logic in tests/unit/integrations/test_slack_privacy.py
-- [ ] T144 Implement privacy logic in src/integrations/slack_bot.py (suggest DM for public channels)
-- [ ] T145 Create Slack bot startup script in src/integrations/slack_bot_main.py
+- [X] T139 Write test for Slack event handler in tests/unit/integrations/test_slack_bot.py
+- [X] T140 Implement Slack bot event listener in src/integrations/slack_bot.py (message events, slash commands, @mentions)
+- [X] T141 [P] Write test for Slack message formatter in tests/unit/integrations/test_slack_formatter.py
+- [X] T142 [P] Implement Slack message formatter in src/integrations/slack_formatter.py (citations as blocks)
+- [X] T143 Write test for ephemeral response logic in tests/unit/integrations/test_slack_privacy.py
+- [X] T144 Implement privacy logic in src/integrations/slack_bot.py (suggest DM for public channels)
+- [X] T145 Create Slack bot startup script in src/integrations/slack_bot_main.py
 
 ### Integration Tests (US4)
 
-- [ ] T146 Write end-to-end test for US4 Scenario 1 in tests/integration/scenarios/test_us4_scenario1.py (DM bot, get answer)
-- [ ] T147 Write end-to-end test for US4 Scenario 2 in tests/integration/scenarios/test_us4_scenario2.py (slash command with ephemeral)
-- [ ] T148 Write end-to-end test for US4 Scenario 3 in tests/integration/scenarios/test_us4_scenario3.py (@mention, suggest DM)
-- [ ] T149 Write end-to-end test for US4 Scenario 4 in tests/integration/scenarios/test_us4_scenario4.py (citations with clickable links)
+- [X] T146 Write end-to-end test for US4 Scenario 1 in tests/integration/scenarios/test_us4_scenario1.py (DM bot, get answer)
+- [X] T147 Write end-to-end test for US4 Scenario 2 in tests/integration/scenarios/test_us4_scenario2.py (slash command with ephemeral)
+- [X] T148 Write end-to-end test for US4 Scenario 3 in tests/integration/scenarios/test_us4_scenario3.py (@mention, suggest DM)
+- [X] T149 Write end-to-end test for US4 Scenario 4 in tests/integration/scenarios/test_us4_scenario4.py (citations with clickable links)
 
 ---
 
