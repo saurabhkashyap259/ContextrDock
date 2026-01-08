@@ -413,10 +413,10 @@
 
 ### Performance Optimization
 
-- [ ] T202 Write performance test for query latency in tests/integration/performance/test_query_latency.py (p95 <10s)
-- [ ] T203 Implement connection pooling for SQLAlchemy in src/config/database.py (pool_size=20, max_overflow=10)
-- [ ] T204 [P] Write performance test for concurrent users in tests/integration/performance/test_concurrent_users.py (50 users)
-- [ ] T205 [P] Implement caching for identity resolution in src/services/identity_resolution.py (Redis, 1hr TTL)
+- [X] T202 Write performance test for query latency in tests/integration/performance/test_query_latency.py (p95 <10s)
+- [X] T203 Implement connection pooling for SQLAlchemy in src/config/database.py (pool_size=20, max_overflow=10)
+- [X] T204 [P] Write performance test for concurrent users in tests/integration/performance/test_concurrent_users.py (50 users)
+- [X] T205 [P] Implement caching for identity resolution in src/services/identity_resolution.py (Redis, 1hr TTL)
 
 ### Documentation & Deployment
 
