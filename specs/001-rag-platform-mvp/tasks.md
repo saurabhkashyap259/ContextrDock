@@ -372,12 +372,12 @@
 
 ### Web UI Implementation (US6)
 
-- [ ] T181 Write test for static file serving in tests/integration/api/test_static_files.py
-- [ ] T182 Create HTML template in src/static/index.html (chat interface with ARIA labels)
-- [ ] T183 [P] Create CSS stylesheet in src/static/styles.css (WCAG 2.1 AA contrast, 4.5:1 minimum)
-- [ ] T184 [P] Create JavaScript client in src/static/app.js (query submission, citation rendering, keyboard navigation)
-- [ ] T185 Configure FastAPI to serve static files in src/main.py (mount /app → src/static/)
-- [ ] T186 [P] Write test for accessibility compliance in tests/integration/accessibility/test_wcag.py (axe-core validates FR-048 keyboard nav, FR-049 WCAG 2.1 AA contrast, FR-050 ARIA labels)
+- [X] T181 Write test for static file serving in tests/integration/api/test_static_files.py
+- [X] T182 Create HTML template in src/static/index.html (chat interface with ARIA labels)
+- [X] T183 [P] Create CSS stylesheet in src/static/styles.css (WCAG 2.1 AA contrast, 4.5:1 minimum)
+- [X] T184 [P] Create JavaScript client in src/static/app.js (query submission, citation rendering, keyboard navigation)
+- [X] T185 Configure FastAPI to serve static files in src/main.py (mount /app → src/static/)
+- [X] T186 [P] Write test for accessibility compliance in tests/integration/accessibility/test_wcag.py (axe-core validates FR-048 keyboard nav, FR-049 WCAG 2.1 AA contrast, FR-050 ARIA labels)
 
 ### Integration Tests (US6)
 
