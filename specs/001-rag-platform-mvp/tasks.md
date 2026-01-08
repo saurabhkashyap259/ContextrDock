@@ -420,10 +420,10 @@
 
 ### Documentation & Deployment
 
-- [ ] T206 Update README.md with architecture overview, setup instructions, contributing guidelines, data privacy policy (FR-039: no customer data used for training models)
-- [ ] T207 [P] Create API documentation from OpenAPI spec at /docs endpoint (FastAPI automatic)
-- [ ] T208 [P] Create development guide in docs/development.md (running tests, adding connectors)
-- [ ] T209 [P] Create deployment guide in docs/deployment.md (Docker Compose quickstart, K8s production, TLS setup via nginx reverse proxy per FR-036, data privacy policy per FR-039: no customer data used for model training)
+- [X] T206 Update README.md with architecture overview, setup instructions, contributing guidelines, data privacy policy (FR-039: no customer data used for training models)
+- [X] T207 [P] Create API documentation from OpenAPI spec at /docs endpoint (FastAPI automatic)
+- [X] T208 [P] Create development guide in docs/development.md (running tests, adding connectors)
+- [X] T209 [P] Create deployment guide in docs/deployment.md (Docker Compose quickstart, K8s production, TLS setup via nginx reverse proxy per FR-036, data privacy policy per FR-039: no customer data used for model training)
 - [ ] T210 [P] Update docker-compose.yml with all services and resource limits
 - [ ] T211 Create Dockerfile with multi-stage build (build, test, production)
 - [ ] T212 [P] Create requirements.txt with pinned versions (FastAPI==0.109.0, SQLAlchemy==2.0.25, etc.)
