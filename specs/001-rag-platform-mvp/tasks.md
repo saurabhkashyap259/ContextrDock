@@ -400,8 +400,8 @@
 - [X] T192 Implement circuit breaker for Qdrant in src/integrations/vector_db.py (fallback to keyword-only after 3 failures)
 - [X] T193 [P] Write test for credential expiration handling in tests/unit/workers/test_credential_refresh.py
 - [X] T194 [P] Implement auto-refresh for OAuth tokens in src/workers/sync_task.py (retry with 1min, 5min, 15min backoff)
-- [ ] T195 Write test for embedding failure handling in tests/unit/ingestion/test_embedding_failure.py
-- [ ] T196 Implement retry with jitter for embedding API in src/ingestion/embeddings.py (1s, 2s, 4s, 8s)
+- [X] T195 Write test for embedding failure handling in tests/unit/ingestion/test_embedding_failure.py
+- [X] T196 Implement retry with jitter for embedding API in src/ingestion/embeddings.py (1s, 2s, 4s, 8s)
 
 ### Monitoring & Observability
 
