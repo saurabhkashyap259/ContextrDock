@@ -24,17 +24,17 @@ class CircuitState:
 class CircuitBreaker:
     """
     Circuit breaker for Qdrant vector database (T192).
-    
+
     Prevents cascading failures by:
     - Opening circuit after 3 consecutive failures
     - Falling back to keyword-only search when open
     - Attempting recovery after timeout period
     """
-    
+
     def __init__(self, failure_threshold: int = 3, timeout: int = 60):
         """
         Initialize circuit breaker.
-        
+
         Args:
             failure_threshold: Number of failures before opening circuit
             timeout: Seconds to wait before attempting recovery
@@ -44,30 +44,30 @@ class CircuitBreaker:
         self.failures = 0
         self.state = CircuitState.CLOSED
         self.last_failure_time: Optional[datetime] = None
-    
+
     def record_success(self):
         """Record successful call, reset failures."""
         self.failures = 0
         self.state = CircuitState.CLOSED
         logger.info("Circuit breaker: recorded success, state=CLOSED")
-    
+
     def record_failure(self):
         """Record failed call, open circuit if threshold reached."""
         self.failures += 1
         self.last_failure_time = datetime.now()
-        
+
         if self.failures >= self.failure_threshold:
             self.state = CircuitState.OPEN
             logger.warning(
                 f"Circuit breaker: opened after {self.failures} failures, "
                 "falling back to keyword-only search"
             )
-    
+
     def can_attempt(self) -> bool:
         """Check if circuit allows attempting call."""
         if self.state == CircuitState.CLOSED:
             return True
-        
+
         # Check if timeout has passed for OPEN state
         if self.state == CircuitState.OPEN and self.last_failure_time:
             elapsed = (datetime.now() - self.last_failure_time).total_seconds()
@@ -75,12 +75,12 @@ class CircuitBreaker:
                 self.state = CircuitState.HALF_OPEN
                 logger.info("Circuit breaker: moving to HALF_OPEN state for recovery attempt")
                 return True
-        
+
         if self.state == CircuitState.HALF_OPEN:
             return True
-        
+
         return False
-    
+
     def is_open(self) -> bool:
         """Check if circuit is open."""
         return self.state == CircuitState.OPEN
@@ -89,10 +89,10 @@ class CircuitBreaker:
 class VectorDB(ABC):
     """
     Abstract base class for vector database clients.
-    
+
     Enables pluggable backends (Qdrant, Weaviate, pgvector) per FR-043.
     """
-    
+
     @abstractmethod
     def upsert_vector(
         self,
@@ -102,7 +102,7 @@ class VectorDB(ABC):
     ) -> str:
         """Insert or update a vector with metadata."""
         pass
-    
+
     @abstractmethod
     def search_vectors(
         self,
@@ -112,12 +112,12 @@ class VectorDB(ABC):
     ) -> List[Dict[str, Any]]:
         """Search for similar vectors."""
         pass
-    
+
     @abstractmethod
     def delete_vector(self, vector_id: str) -> None:
         """Delete a vector by ID."""
         pass
-    
+
     @abstractmethod
     def ensure_collection(self, vector_size: int = 1536) -> None:
         """Ensure the collection/index exists."""
@@ -127,15 +127,15 @@ class VectorDB(ABC):
 class QdrantClient(VectorDB):
     """
     Qdrant vector database client implementation.
-    
+
     Qdrant is optimized for:
     - Fast vector similarity search
     - Advanced filtering with metadata
     - Horizontal scalability
-    
+
     Includes circuit breaker pattern (T192) for fault tolerance.
     """
-    
+
     def __init__(
         self,
         url: Optional[str] = None,
@@ -145,7 +145,7 @@ class QdrantClient(VectorDB):
     ):
         """
         Initialize Qdrant client.
-        
+
         Args:
             url: Qdrant server URL (defaults to settings.qdrant_url)
             api_key: API key for authentication (defaults to settings.qdrant_api_key)
@@ -159,18 +159,16 @@ class QdrantClient(VectorDB):
             failure_threshold=3,
             timeout=60
         )
-        
+
         self.client = QdrantClientSDK(
             url=self.url,
             api_key=self.api_key if self.api_key else None,
         )
-            api_key=self.api_key if self.api_key else None,
-        )
-    
+
     def ensure_collection(self, vector_size: int = 1536) -> None:
         """
         Create collection if it doesn't exist.
-        
+
         Args:
             vector_size: Dimension of embedding vectors (1536 for text-embedding-3-small)
         """
@@ -179,7 +177,7 @@ class QdrantClient(VectorDB):
                 collection_name=self.collection_name,
                 vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
             )
-    
+
     def upsert_vector(
         self,
         vector_id: str,
@@ -188,12 +186,12 @@ class QdrantClient(VectorDB):
     ) -> str:
         """
         Insert or update a vector in Qdrant.
-        
+
         Args:
             vector_id: Unique identifier for the vector
             embedding: Vector embedding
             metadata: Metadata to store with vector
-            
+
         Returns:
             Vector ID
         """
@@ -202,18 +200,18 @@ class QdrantClient(VectorDB):
             vector=embedding,
             payload=metadata,
         )
-        
+
         self.client.upsert(
             collection_name=self.collection_name,
             points=[point],
         )
-        
+
         return vector_id
-    
+
     def batch_upsert(self, vectors: List[Tuple[str, List[float], Dict[str, Any]]]) -> None:
         """
         Batch insert/update multiple vectors.
-        
+
         Args:
             vectors: List of (vector_id, embedding, metadata) tuples
         """
@@ -221,12 +219,12 @@ class QdrantClient(VectorDB):
             PointStruct(id=vid, vector=emb, payload=meta)
             for vid, emb, meta in vectors
         ]
-        
+
         self.client.upsert(
             collection_name=self.collection_name,
             points=points,
         )
-    
+
     def search_vectors(
         self,
         query_embedding: List[float],
@@ -235,15 +233,15 @@ class QdrantClient(VectorDB):
     ) -> List[Dict[str, Any]]:
         """
         Search for similar vectors with circuit breaker protection (T192).
-        
+
         Args:
             query_embedding: Query vector
             top_k: Number of results to return
             filters: Metadata filters (e.g., {"workspace_id": 1})
-            
+
         Returns:
             List of results with id, score, and metadata
-            
+
         Note:
             If circuit breaker is open (after 3 failures), returns empty list.
             The caller should fall back to keyword-only search via PostgreSQL.
@@ -255,7 +253,7 @@ class QdrantClient(VectorDB):
                 "Use keyword-only search fallback."
             )
             return []
-        
+
         try:
             # Build filter conditions
             query_filter = None
@@ -265,17 +263,17 @@ class QdrantClient(VectorDB):
                     for key, value in filters.items()
                 ]
                 query_filter = Filter(must=conditions)
-            
+
             results = self.client.search(
                 collection_name=self.collection_name,
                 query_vector=query_embedding,
                 limit=top_k,
                 query_filter=query_filter,
             )
-            
+
             # Record success
             self.circuit_breaker.record_success()
-            
+
             return [
                 {
                     "id": str(result.id),
@@ -284,7 +282,7 @@ class QdrantClient(VectorDB):
                 }
                 for result in results
             ]
-        
+
         except Exception as e:
             # Record failure
             self.circuit_breaker.record_failure()
@@ -292,21 +290,21 @@ class QdrantClient(VectorDB):
                 f"Qdrant search failed: {e}, "
                 f"failures={self.circuit_breaker.failures}/{self.circuit_breaker.failure_threshold}"
             )
-            
+
             # Return empty list, caller should use keyword fallback
             return []
-    
+
     def delete_vector(self, vector_id: str) -> None:
         """Delete a vector by ID."""
         self.client.delete(
             collection_name=self.collection_name,
             points_selector=[vector_id],
         )
-    
+
     def delete_by_filter(self, filters: Dict[str, Any]) -> None:
         """
         Delete vectors matching filter criteria.
-        
+
         Args:
             filters: Metadata filters (e.g., {"document_id": 123})
         """
@@ -314,7 +312,7 @@ class QdrantClient(VectorDB):
             FieldCondition(key=key, match=MatchValue(value=value))
             for key, value in filters.items()
         ]
-        
+
         self.client.delete(
             collection_name=self.collection_name,
             points_selector=Filter(must=conditions),
