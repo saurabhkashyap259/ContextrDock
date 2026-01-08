@@ -424,10 +424,10 @@
 - [X] T207 [P] Create API documentation from OpenAPI spec at /docs endpoint (FastAPI automatic)
 - [X] T208 [P] Create development guide in docs/development.md (running tests, adding connectors)
 - [X] T209 [P] Create deployment guide in docs/deployment.md (Docker Compose quickstart, K8s production, TLS setup via nginx reverse proxy per FR-036, data privacy policy per FR-039: no customer data used for model training)
-- [ ] T210 [P] Update docker-compose.yml with all services and resource limits
-- [ ] T211 Create Dockerfile with multi-stage build (build, test, production)
-- [ ] T212 [P] Create requirements.txt with pinned versions (FastAPI==0.109.0, SQLAlchemy==2.0.25, etc.)
-- [ ] T213 [P] Create requirements-dev.txt with dev dependencies (pytest==7.4.3, ruff==0.1.11, mypy==1.8.0)
+- [X] T210 [P] Update docker-compose.yml with all services and resource limits
+- [X] T211 Create Dockerfile with multi-stage build (build, test, production)
+- [X] T212 [P] Create requirements.txt with pinned versions (FastAPI==0.109.0, SQLAlchemy==2.0.25, etc.)
+- [X] T213 [P] Create requirements-dev.txt with dev dependencies (pytest==7.4.3, ruff==0.1.11, mypy==1.8.0)
 
 ### Final Validation
 

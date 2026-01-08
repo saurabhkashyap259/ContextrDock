@@ -1,28 +1,56 @@
+# ============================================================================
+# ContextDock Production Dependencies
+# ============================================================================
+
+# Web Framework
 fastapi==0.109.0
 pydantic==2.5.3
 pydantic-settings==2.1.0
+uvicorn[standard]==0.26.0
+python-multipart==0.0.6
+
+# Database & ORM
 sqlalchemy==2.0.25
 alembic==1.13.1
 asyncpg==0.29.0
 psycopg2-binary==2.9.9
+
+# Vector Database
 qdrant-client==1.7.0
+
+# Cache
 redis==5.0.1
+
+# Background Tasks
 celery==5.3.6
+
+# AI/ML
 openai==1.8.0
 anthropic==0.8.1
 langchain==0.1.1
 langchain-community==0.0.13
 langchain-openai==0.0.2
 tiktoken==0.5.2
+
+# Security & Auth
 cryptography==41.0.7
 PyJWT==2.8.0
-python-multipart==0.0.6
+
+# HTTP Client
 httpx==0.26.0
-uvicorn[standard]==0.26.0
+
+# Logging & Monitoring
 structlog==24.1.0
 prometheus-client==0.19.0
+
+# Connectors
 slack-sdk==3.26.2
 jira==3.6.0
 atlassian-python-api==3.41.0
 PyGithub==2.1.1
 dropbox==11.36.2
+
+# Utilities
+python-dateutil==2.8.2
+pytz==2023.3
+
