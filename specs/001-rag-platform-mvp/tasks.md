@@ -314,22 +314,22 @@
 
 ### Database Models (US5)
 
-- [ ] T150 Write test for AgentAction model in tests/unit/models/test_agent_action.py
-- [ ] T151 Implement AgentAction model in src/models/agent_action.py (type, status, preview_json, expires_at)
-- [ ] T152 [P] Write test for AuditLog model in tests/unit/models/test_audit_log.py
-- [ ] T153 [P] Implement AuditLog model in src/models/audit_log.py (actor, action, target, details_json)
-- [ ] T154 Create Alembic migration: Phase 7 US5 entities (AgentAction, AuditLog - 2 entities)
+- [X] T150 Write test for AgentAction model in tests/unit/models/test_agent_action.py
+- [X] T151 Implement AgentAction model in src/models/agent_action.py (type, status, preview_json, expires_at)
+- [X] T152 [P] Write test for AuditLog model in tests/unit/models/test_audit_log.py
+- [X] T153 [P] Implement AuditLog model in src/models/audit_log.py (actor, action, target, details_json)
+- [X] T154 Create Alembic migration: Phase 7 US5 entities (AgentAction, AuditLog - 2 entities)
 
 **Migration Coverage**: All 11 entities covered across 4 migrations: Phase 2 (3), Phase 3 (4), Phase 4 (2), Phase 7 (2)
 
 ### Action Handlers (US5)
 
-- [ ] T155 Write test for Jira ticket creation action in tests/unit/agents/test_create_jira_ticket.py
-- [ ] T156 Implement CreateJiraTicketAction in src/agents/create_jira_ticket.py (preview generation, execution)
-- [ ] T157 [P] Write test for Confluence page creation in tests/unit/agents/test_create_confluence_page.py
-- [ ] T158 [P] Implement CreateConfluencePageAction in src/agents/create_confluence_page.py
-- [ ] T159 [P] Write test for GitHub issue creation in tests/unit/agents/test_create_github_issue.py
-- [ ] T160 [P] Implement CreateGitHubIssueAction in src/agents/create_github_issue.py
+- [X] T155 Write test for Jira ticket creation action in tests/unit/agents/test_create_jira_ticket.py
+- [X] T156 Implement CreateJiraTicketAction in src/agents/create_jira_ticket.py (preview generation, execution)
+- [X] T157 [P] Write test for Confluence page creation in tests/unit/agents/test_create_confluence_page.py
+- [X] T158 [P] Implement CreateConfluencePageAction in src/agents/create_confluence_page.py
+- [X] T159 [P] Write test for GitHub issue creation in tests/unit/agents/test_create_github_issue.py
+- [X] T160 [P] Implement CreateGitHubIssueAction in src/agents/create_github_issue.py
 - [ ] T161 Write test for preview expiration cleanup in tests/unit/agents/test_action_cleanup.py
 - [ ] T162 Implement Celery task for action expiration in src/workers/action_cleanup_task.py (hourly job)
 
