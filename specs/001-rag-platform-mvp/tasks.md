@@ -396,8 +396,8 @@
 
 ### Error Handling & Graceful Degradation
 
-- [ ] T191 Write test for circuit breaker in tests/unit/integrations/test_circuit_breaker.py
-- [ ] T192 Implement circuit breaker for Qdrant in src/integrations/vector_db.py (fallback to keyword-only after 3 failures)
+- [X] T191 Write test for circuit breaker in tests/unit/integrations/test_circuit_breaker.py
+- [X] T192 Implement circuit breaker for Qdrant in src/integrations/vector_db.py (fallback to keyword-only after 3 failures)
 - [ ] T193 [P] Write test for credential expiration handling in tests/unit/workers/test_credential_refresh.py
 - [ ] T194 [P] Implement auto-refresh for OAuth tokens in src/workers/sync_task.py (retry with 1min, 5min, 15min backoff)
 - [ ] T195 Write test for embedding failure handling in tests/unit/ingestion/test_embedding_failure.py
