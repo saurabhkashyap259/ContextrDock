@@ -5,15 +5,15 @@ Supports incremental sync using JQL queries with updated timestamps.
 """
 
 import logging
+from collections.abc import Iterator
 from datetime import datetime
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Optional
 
 import requests
 
 from src.connectors.sdk import (
     ConnectorBase,
     OAuth2Token,
-    PageResult,
     rate_limit,
 )
 from src.models.connector import Connector
@@ -23,13 +23,13 @@ logger = logging.getLogger(__name__)
 
 class JiraConnector(ConnectorBase):
     """Jira Cloud connector.
-    
+
     Fetches:
     - Issues with fields (summary, description, status, assignee, reporter)
     - Comments on issues
     - Project metadata for ACL
     - User information for identity resolution
-    
+
     OAuth Scopes Required:
     - read:jira-work - Read issues, projects, comments
     - read:jira-user - Read user information
@@ -40,25 +40,25 @@ class JiraConnector(ConnectorBase):
 
     def __init__(self, connector: Connector):
         """Initialize Jira connector.
-        
+
         Args:
             connector: Connector model instance with credentials and config
         """
         super().__init__(connector)
         self._oauth_token: Optional[OAuth2Token] = None
-        self._users_cache: Dict[str, Dict[str, Any]] = {}
-        self._projects_cache: Dict[str, Dict[str, Any]] = {}
-        
+        self._users_cache: dict[str, dict[str, Any]] = {}
+        self._projects_cache: dict[str, dict[str, Any]] = {}
+
         # Get Jira instance URL from config
         self.instance_url = self.connector.config_json.get("instance_url", "")
         if not self.instance_url:
             raise ValueError("Jira instance_url is required in connector config")
-        
+
         # Remove trailing slash
         self.instance_url = self.instance_url.rstrip("/")
         self.api_base = f"{self.instance_url}/rest/api/3"
 
-    def _get_headers(self) -> Dict[str, str]:
+    def _get_headers(self) -> dict[str, str]:
         """Get HTTP headers with authorization."""
         if self._oauth_token is None:
             # Load token from connector credentials
@@ -87,21 +87,21 @@ class JiraConnector(ConnectorBase):
         jql: str = "",
         start_at: int = 0,
         max_results: int = 50,
-        fields: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        fields: Optional[list[str]] = None,
+    ) -> dict[str, Any]:
         """Fetch page of issues from Jira API.
-        
+
         Args:
             jql: JQL query string for filtering
             start_at: Pagination offset
             max_results: Number of issues per page (max 100)
             fields: List of fields to include (default: all)
-            
+
         Returns:
             API response with issues list and pagination info
         """
         url = f"{self.api_base}/search"
-        
+
         if fields is None:
             fields = [
                 "summary",
@@ -117,7 +117,7 @@ class JiraConnector(ConnectorBase):
                 "comment",
                 "security",
             ]
-        
+
         params = {
             "jql": jql or "ORDER BY updated DESC",
             "startAt": start_at,
@@ -133,17 +133,17 @@ class JiraConnector(ConnectorBase):
         return data
 
     @rate_limit(calls=RATE_LIMIT_CALLS, period=RATE_LIMIT_PERIOD, handle_429=True)
-    def _fetch_project(self, project_key: str) -> Dict[str, Any]:
+    def _fetch_project(self, project_key: str) -> dict[str, Any]:
         """Fetch project metadata from Jira API.
-        
+
         Args:
             project_key: Jira project key (e.g., "PROJ")
-            
+
         Returns:
             Project metadata including roles
         """
         url = f"{self.api_base}/project/{project_key}"
-        
+
         response = requests.get(url, headers=self._get_headers())
         response.raise_for_status()
         data = response.json()
@@ -153,13 +153,13 @@ class JiraConnector(ConnectorBase):
     @rate_limit(calls=RATE_LIMIT_CALLS, period=RATE_LIMIT_PERIOD, handle_429=True)
     def _fetch_users_page(
         self, start_at: int = 0, max_results: int = 50
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fetch page of users from Jira API.
-        
+
         Args:
             start_at: Pagination offset
             max_results: Number of users per page
-            
+
         Returns:
             List of users
         """
@@ -178,58 +178,58 @@ class JiraConnector(ConnectorBase):
     def _load_projects_cache(self) -> None:
         """Load all projects into cache for ACL metadata."""
         logger.info("Loading Jira projects into cache")
-        
+
         # Fetch all projects
         url = f"{self.api_base}/project"
         response = requests.get(url, headers=self._get_headers())
         response.raise_for_status()
         projects = response.json()
-        
+
         for project in projects:
             project_key = project.get("key")
             if project_key:
                 self._projects_cache[project_key] = project
-        
+
         logger.info(f"Loaded {len(self._projects_cache)} projects into cache")
 
     def _load_users_cache(self) -> None:
         """Load all users into cache for identity resolution."""
         logger.info("Loading Jira users into cache")
-        
+
         start_at = 0
         max_results = 50
-        
+
         while True:
             users_data = self._fetch_users_page(start_at=start_at, max_results=max_results)
-            
+
             # Jira returns a list directly
             if not users_data:
                 break
-            
+
             for user in users_data:
                 account_id = user.get("accountId")
                 if account_id:
                     self._users_cache[account_id] = user
-            
+
             # Check if there are more users
             if len(users_data) < max_results:
                 break
-            
+
             start_at += max_results
-        
+
         logger.info(f"Loaded {len(self._users_cache)} users into cache")
 
     def sync(
         self,
-        cursor_state: Optional[Dict[str, Any]] = None,
+        cursor_state: Optional[dict[str, Any]] = None,
         max_issues: Optional[int] = None,
-    ) -> Iterator[Dict[str, Any]]:
+    ) -> Iterator[dict[str, Any]]:
         """Sync issues from Jira instance.
-        
+
         Args:
             cursor_state: State from previous sync for incremental updates
             max_issues: Limit number of issues to sync (for testing)
-            
+
         Yields:
             Document dicts with content, metadata, and acl_metadata
         """
@@ -241,27 +241,27 @@ class JiraConnector(ConnectorBase):
 
         # Build JQL query for incremental sync
         jql_parts = []
-        
+
         # Get last sync timestamp from cursor state
         last_sync_timestamp = None
         if cursor_state:
             last_sync_timestamp = cursor_state.get("last_sync_timestamp")
-        
+
         if last_sync_timestamp:
             # Incremental sync: only fetch updated issues
             jql_parts.append(f'updated >= "{last_sync_timestamp}"')
-        
+
         # Filter by projects if configured
         project_keys = self.connector.config_json.get("project_keys")
         if project_keys:
             projects_jql = ", ".join(f'"{key}"' for key in project_keys)
             jql_parts.append(f"project IN ({projects_jql})")
-        
+
         # Order by updated for consistent pagination
         jql_parts.append("ORDER BY updated ASC")
-        
+
         jql = " AND ".join(jql_parts) if jql_parts else "ORDER BY updated ASC"
-        
+
         logger.info(f"Using JQL query: {jql}")
 
         # Fetch issues with offset-based pagination
@@ -422,35 +422,35 @@ class JiraConnector(ConnectorBase):
 
     def fetch_page(
         self, page_cursor: Optional[str] = None, page_size: int = 50
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fetch a page of issues (for API compatibility).
-        
+
         Args:
             page_cursor: Pagination cursor (startAt as string)
             page_size: Number of items per page
-            
+
         Returns:
             Page of issues with cursor
         """
         start_at = int(page_cursor) if page_cursor else 0
         data = self._fetch_issues_page(start_at=start_at, max_results=page_size)
-        
+
         issues = data.get("issues", [])
         total = data.get("total", 0)
         next_start_at = start_at + len(issues)
-        
+
         return {
             "items": issues,
             "next_cursor": str(next_start_at) if next_start_at < total else None,
             "has_more": next_start_at < total,
         }
 
-    def extract_acl(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def extract_acl(self, metadata: dict[str, Any]) -> dict[str, Any]:
         """Extract ACL metadata from document metadata.
-        
+
         Args:
             metadata: Document metadata with project and security info
-            
+
         Returns:
             ACL metadata with access control rules
         """

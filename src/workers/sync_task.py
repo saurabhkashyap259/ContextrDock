@@ -1,16 +1,16 @@
 """Celery task for syncing connector data."""
 
-import logging
 import asyncio
-from datetime import datetime, timezone, timedelta
-from typing import Any, Dict, Optional
+import logging
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from sqlalchemy.orm import Session
 
 from src.database import get_db
+from src.ingestion.pipeline import ingest_document
 from src.models.connector import Connector
 from src.models.sync_run import SyncRun, SyncStatus
-from src.ingestion.pipeline import ingest_document
 from src.workers.celery_app import celery_app
 
 logger = logging.getLogger(__name__)
@@ -19,58 +19,58 @@ logger = logging.getLogger(__name__)
 class CredentialRefreshManager:
     """
     Manager for OAuth credential refresh with retry logic (T194).
-    
+
     Features:
     - Exponential backoff: 1min, 5min, 15min
     - Automatic retry on transient failures
     - Token refresh via OAuth provider
     """
-    
+
     def __init__(self):
         self.retry_delays = [60, 300, 900]  # 1min, 5min, 15min in seconds
-    
+
     async def refresh_credential(
         self,
         connector: Connector,
         oauth_client: any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Refresh OAuth credential with retry logic.
-        
+
         Args:
             connector: Connector with OAuth credentials
             oauth_client: OAuth client for token refresh
-            
+
         Returns:
             Dict with refreshed tokens
-            
+
         Raises:
             Exception: If all retry attempts fail
         """
         refresh_token = connector.credentials.get("refresh_token")
         if not refresh_token:
             raise Exception("No refresh_token available for credential refresh")
-        
+
         for attempt, delay in enumerate(self.retry_delays):
             try:
                 # Attempt refresh
                 new_tokens = await oauth_client.refresh_tokens(
                     refresh_token=refresh_token
                 )
-                
+
                 logger.info(
                     f"Successfully refreshed OAuth credential for connector {connector.id} "
                     f"(attempt {attempt + 1})"
                 )
-                
+
                 return new_tokens
-            
+
             except Exception as e:
                 logger.warning(
                     f"OAuth refresh failed for connector {connector.id} "
                     f"(attempt {attempt + 1}/{len(self.retry_delays)}): {e}"
                 )
-                
+
                 if attempt < len(self.retry_delays) - 1:
                     # Wait before retry
                     await asyncio.sleep(delay)
@@ -81,30 +81,30 @@ class CredentialRefreshManager:
                         f"after {len(self.retry_delays)} attempts"
                     )
                     raise
-        
+
         raise Exception("Unexpected refresh failure")
-    
+
     def is_credential_expired(self, connector: Connector, buffer_minutes: int = 5) -> bool:
         """
         Check if connector's OAuth credential is expired or expires soon.
-        
+
         Args:
             connector: Connector to check
             buffer_minutes: Buffer time before expiration to trigger refresh
-            
+
         Returns:
             True if credential is expired or expires within buffer time
         """
         if not connector.credentials:
             return False
-        
+
         expires_at_str = connector.credentials.get("expires_at")
         if not expires_at_str:
             return False
-        
+
         try:
             expires_at = datetime.fromisoformat(expires_at_str)
-            buffer_time = datetime.now(timezone.utc) + timedelta(minutes=buffer_minutes)
+            buffer_time = datetime.now(UTC) + timedelta(minutes=buffer_minutes)
             return expires_at <= buffer_time
         except (ValueError, TypeError):
             logger.warning(f"Invalid expires_at format for connector {connector.id}")
@@ -148,7 +148,7 @@ def get_connector_class(connector_type: str):
     retry_backoff_max=600,
     retry_jitter=True,
 )
-def run_connector_sync(self, connector_id: int) -> Dict[str, Any]:
+def run_connector_sync(self, connector_id: int) -> dict[str, Any]:
     """Sync connector data and ingest into pipeline (T194: with OAuth refresh).
 
     Args:
@@ -184,16 +184,16 @@ def run_connector_sync(self, connector_id: int) -> Dict[str, Any]:
                 f"OAuth credential expired or expires soon for connector {connector_id}, "
                 "refreshing..."
             )
-            
+
             try:
                 # Get OAuth client for connector type
                 oauth_client = _get_oauth_client(connector.connector_type)
-                
+
                 # Refresh credential (async call wrapped in sync context)
                 new_tokens = asyncio.run(
                     refresh_manager.refresh_credential(connector, oauth_client)
                 )
-                
+
                 # Update connector credentials
                 connector.credentials = {
                     **connector.credentials,
@@ -203,13 +203,13 @@ def run_connector_sync(self, connector_id: int) -> Dict[str, Any]:
                         connector.credentials.get("refresh_token")
                     ),
                     "expires_at": (
-                        datetime.now(timezone.utc) + timedelta(seconds=new_tokens["expires_in"])
+                        datetime.now(UTC) + timedelta(seconds=new_tokens["expires_in"])
                     ).isoformat(),
                 }
                 db.commit()
-                
+
                 logger.info(f"Successfully refreshed OAuth credential for connector {connector_id}")
-                
+
             except Exception as e:
                 logger.error(
                     f"Failed to refresh OAuth credential for connector {connector_id}: {e}"
@@ -221,7 +221,7 @@ def run_connector_sync(self, connector_id: int) -> Dict[str, Any]:
         sync_run = SyncRun(
             connector_id=connector_id,
             status=SyncStatus.RUNNING,
-            started_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
         )
         db.add(sync_run)
         db.commit()
@@ -270,7 +270,7 @@ def run_connector_sync(self, connector_id: int) -> Dict[str, Any]:
                     )
 
                     documents_processed += 1
-                    
+
                     # Check if document was updated (has previous version)
                     if ingested_doc.document_chunks:
                         # If document already existed, it was updated
@@ -291,7 +291,7 @@ def run_connector_sync(self, connector_id: int) -> Dict[str, Any]:
 
             # Update sync run
             sync_run.status = SyncStatus.COMPLETED
-            sync_run.completed_at = datetime.now(timezone.utc)
+            sync_run.completed_at = datetime.now(UTC)
             sync_run.documents_added = documents_added
             sync_run.documents_updated = documents_updated
             sync_run.documents_deleted = 0  # Not implemented yet
@@ -317,7 +317,7 @@ def run_connector_sync(self, connector_id: int) -> Dict[str, Any]:
         except Exception as e:
             # Update sync run with error
             sync_run.status = SyncStatus.FAILED
-            sync_run.completed_at = datetime.now(timezone.utc)
+            sync_run.completed_at = datetime.now(UTC)
             sync_run.error_message = str(e)
             db.commit()
 
@@ -331,13 +331,13 @@ def run_connector_sync(self, connector_id: int) -> Dict[str, Any]:
 def _get_oauth_client(connector_type: str):
     """
     Get OAuth client for connector type (T194).
-    
+
     Args:
         connector_type: Connector type (slack, jira, etc.)
-        
+
     Returns:
         OAuth client instance
-        
+
     Raises:
         ImportError: If connector type doesn't support OAuth
     """
@@ -351,14 +351,14 @@ def _get_oauth_client(connector_type: str):
         "figma": "src.connectors.figma.FigmaOAuthClient",
         "dropbox": "src.connectors.dropbox.DropboxOAuthClient",
     }
-    
+
     if connector_type not in oauth_clients:
         raise ImportError(f"No OAuth client for connector type: {connector_type}")
-    
+
     # Import and instantiate OAuth client
     class_path = oauth_clients[connector_type]
     module_path, class_name = class_path.rsplit(".", 1)
     module = __import__(module_path, fromlist=[class_name])
     oauth_client_class = getattr(module, class_name)
-    
+
     return oauth_client_class()

@@ -1,8 +1,8 @@
 """Figma connector for syncing design files, comments, and versions."""
 
-import re
-from datetime import datetime, timezone
-from typing import Any, Dict, Iterator, List, Optional
+from collections.abc import Iterator
+from datetime import datetime
+from typing import Any, Optional
 
 import requests
 
@@ -47,9 +47,9 @@ class FigmaConnector(ConnectorBase):
         self.config = connector.config or {}
         self.team_id = self.config.get("team_id")
         self.project_ids = self.config.get("project_ids", [])
-        self.file_cache: Dict[str, Dict[str, Any]] = {}
+        self.file_cache: dict[str, dict[str, Any]] = {}
 
-    def _get_auth_headers(self) -> Dict[str, str]:
+    def _get_auth_headers(self) -> dict[str, str]:
         """Get authentication headers for Figma API.
 
         Returns:
@@ -69,7 +69,7 @@ class FigmaConnector(ConnectorBase):
     def _fetch_team_projects(
         self,
         team_id: str,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fetch projects for a team.
 
         Args:
@@ -91,7 +91,7 @@ class FigmaConnector(ConnectorBase):
     def _fetch_project_files(
         self,
         project_id: str,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fetch files in a project.
 
         Args:
@@ -113,7 +113,7 @@ class FigmaConnector(ConnectorBase):
     def _fetch_file(
         self,
         file_key: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fetch full file content with document tree.
 
         Args:
@@ -134,7 +134,7 @@ class FigmaConnector(ConnectorBase):
     def _fetch_file_comments(
         self,
         file_key: str,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fetch comments for a file.
 
         Args:
@@ -156,7 +156,7 @@ class FigmaConnector(ConnectorBase):
     def _fetch_file_versions(
         self,
         file_key: str,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fetch version history for a file.
 
         Args:
@@ -179,7 +179,7 @@ class FigmaConnector(ConnectorBase):
 
     def _extract_text_from_document(
         self,
-        document: Dict[str, Any],
+        document: dict[str, Any],
     ) -> str:
         """Extract text content from Figma document tree.
 
@@ -219,9 +219,9 @@ class FigmaConnector(ConnectorBase):
 
     def sync(
         self,
-        cursor_state: Optional[Dict[str, Any]] = None,
+        cursor_state: Optional[dict[str, Any]] = None,
         max_files: Optional[int] = None,
-    ) -> Iterator[Dict[str, Any]]:
+    ) -> Iterator[dict[str, Any]]:
         """Sync design files, comments, and versions from Figma.
 
         Args:
@@ -337,7 +337,7 @@ class FigmaConnector(ConnectorBase):
 
     def _format_file_content(
         self,
-        file_data: Dict[str, Any],
+        file_data: dict[str, Any],
         text_content: str,
     ) -> str:
         """Format file metadata and content as searchable text.
@@ -363,7 +363,7 @@ class FigmaConnector(ConnectorBase):
         self,
         project_id: str,
         project_name: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Extract ACL metadata from project.
 
         Args:

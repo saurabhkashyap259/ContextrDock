@@ -4,21 +4,21 @@ Pydantic schemas for agent actions API (T171).
 Defines request/response schemas for action creation, approval, and retrieval.
 """
 from datetime import datetime
-from typing import Optional, Dict, Any, List
+from typing import Any, Optional
 from uuid import UUID
+
 from pydantic import BaseModel, Field, validator
 
-from src.models.agent_action import ActionType, ActionStatus
-
+from src.models.agent_action import ActionStatus, ActionType
 
 # Request Schemas
 
 class ActionCreateRequest(BaseModel):
     """
     Request to create a new agent action.
-    
+
     User provides natural language query and context hints for preview generation.
-    
+
     Attributes:
         action_type: Type of action to create
         user_query: Natural language request
@@ -27,9 +27,9 @@ class ActionCreateRequest(BaseModel):
     """
     action_type: ActionType
     user_query: str = Field(..., min_length=1, max_length=5000, description="Natural language request")
-    context: Dict[str, Any] = Field(default_factory=dict, description="Context hints for preview generation")
+    context: dict[str, Any] = Field(default_factory=dict, description="Context hints for preview generation")
     conversation_id: Optional[UUID] = Field(None, description="Optional conversation context")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -47,17 +47,17 @@ class ActionCreateRequest(BaseModel):
 class ActionApproveRequest(BaseModel):
     """
     Request to approve an agent action.
-    
+
     User can optionally edit preview fields before approval.
-    
+
     Attributes:
         edited_preview: Optional edited preview JSON (if user modified fields)
     """
-    edited_preview: Optional[Dict[str, Any]] = Field(
+    edited_preview: Optional[dict[str, Any]] = Field(
         None,
         description="Optional edited preview (if null, uses original preview)"
     )
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -76,16 +76,16 @@ class ActionApproveRequest(BaseModel):
 class ActionPreviewResponse(BaseModel):
     """
     Preview of action to be created.
-    
+
     Contains all editable fields that user can modify before approval.
-    
+
     Attributes:
         preview_json: Preview data with all editable fields
         expires_at: When preview expires (if not approved)
     """
-    preview_json: Dict[str, Any] = Field(..., description="Editable preview fields")
+    preview_json: dict[str, Any] = Field(..., description="Editable preview fields")
     expires_at: datetime = Field(..., description="Preview expiration timestamp")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -105,9 +105,9 @@ class ActionPreviewResponse(BaseModel):
 class ActionResponse(BaseModel):
     """
     Complete action details.
-    
+
     Includes current status, preview, execution result, etc.
-    
+
     Attributes:
         id: Action ID
         workspace_id: Workspace ID
@@ -128,13 +128,13 @@ class ActionResponse(BaseModel):
     conversation_id: Optional[UUID]
     action_type: ActionType
     status: ActionStatus
-    preview_json: Dict[str, Any]
+    preview_json: dict[str, Any]
     expires_at: datetime
     result_url: Optional[str] = None
     error_message: Optional[str] = None
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
         json_schema_extra = {
@@ -163,9 +163,9 @@ class ActionResponse(BaseModel):
 class ActionExecutionResponse(BaseModel):
     """
     Result of action execution.
-    
+
     Returned after approval triggers execution.
-    
+
     Attributes:
         id: Action ID
         status: Updated status (EXECUTED or FAILED)
@@ -176,14 +176,14 @@ class ActionExecutionResponse(BaseModel):
     status: ActionStatus
     result_url: Optional[str] = None
     error_message: Optional[str] = None
-    
+
     @validator('status')
     def validate_execution_status(cls, v):
         """Ensure status is EXECUTED or FAILED."""
         if v not in [ActionStatus.EXECUTED, ActionStatus.FAILED]:
             raise ValueError("Execution response must have EXECUTED or FAILED status")
         return v
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -198,18 +198,18 @@ class ActionExecutionResponse(BaseModel):
 class ActionListResponse(BaseModel):
     """
     Paginated list of actions.
-    
+
     Attributes:
         items: List of actions
         total: Total count (for pagination)
         page: Current page
         page_size: Items per page
     """
-    items: List[ActionResponse]
+    items: list[ActionResponse]
     total: int
     page: int
     page_size: int
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -226,9 +226,9 @@ class ActionListResponse(BaseModel):
 class AuditLogResponse(BaseModel):
     """
     Audit log entry.
-    
+
     Tracks all write operations for compliance.
-    
+
     Attributes:
         id: Log entry ID
         workspace_id: Workspace ID
@@ -248,10 +248,10 @@ class AuditLogResponse(BaseModel):
     action: str
     target_type: str
     target_id: UUID
-    details_json: Dict[str, Any]
+    details_json: dict[str, Any]
     ip_address: Optional[str]
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
         json_schema_extra = {
@@ -276,18 +276,18 @@ class AuditLogResponse(BaseModel):
 class AuditLogListResponse(BaseModel):
     """
     Paginated list of audit logs.
-    
+
     Attributes:
         items: List of audit log entries
         total: Total count (for pagination)
         page: Current page
         page_size: Items per page
     """
-    items: List[AuditLogResponse]
+    items: list[AuditLogResponse]
     total: int
     page: int
     page_size: int
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -304,7 +304,7 @@ class AuditLogListResponse(BaseModel):
 class ErrorResponse(BaseModel):
     """
     Standard error response.
-    
+
     Attributes:
         error: Error type
         message: Human-readable error message
@@ -312,8 +312,8 @@ class ErrorResponse(BaseModel):
     """
     error: str
     message: str
-    details: Optional[Dict[str, Any]] = None
-    
+    details: Optional[dict[str, Any]] = None
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -332,7 +332,7 @@ class ErrorResponse(BaseModel):
 class ActionFilterParams(BaseModel):
     """
     Query parameters for filtering actions.
-    
+
     Attributes:
         status: Filter by status
         action_type: Filter by action type
@@ -347,7 +347,7 @@ class ActionFilterParams(BaseModel):
     conversation_id: Optional[UUID] = None
     page: int = Field(1, ge=1, description="Page number (1-indexed)")
     page_size: int = Field(20, ge=1, le=100, description="Items per page (1-100)")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -361,7 +361,7 @@ class ActionFilterParams(BaseModel):
 class AuditLogFilterParams(BaseModel):
     """
     Query parameters for filtering audit logs.
-    
+
     Attributes:
         action: Filter by action type
         target_type: Filter by target entity type
@@ -380,7 +380,7 @@ class AuditLogFilterParams(BaseModel):
     end_date: Optional[datetime] = None
     page: int = Field(1, ge=1, description="Page number (1-indexed)")
     page_size: int = Field(50, ge=1, le=200, description="Items per page (1-200)")
-    
+
     class Config:
         json_schema_extra = {
             "example": {

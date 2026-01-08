@@ -5,8 +5,9 @@ Supports incremental sync using cursor-based pagination and message timestamps.
 """
 
 import logging
+from collections.abc import Iterator
 from datetime import datetime
-from typing import Any, Dict, Iterator, List, Optional
+from typing import Any, Optional
 
 import requests
 
@@ -24,12 +25,12 @@ logger = logging.getLogger(__name__)
 
 class SlackConnector(ConnectorBase):
     """Slack workspace connector.
-    
+
     Fetches:
     - Public and private channels the bot is a member of
     - Messages and threaded replies from channels
     - User information for identity resolution
-    
+
     OAuth Scopes Required:
     - channels:read - List public channels
     - channels:history - Read public channel messages
@@ -45,16 +46,16 @@ class SlackConnector(ConnectorBase):
 
     def __init__(self, connector: Connector):
         """Initialize Slack connector.
-        
+
         Args:
             connector: Connector model instance with credentials
         """
         super().__init__(connector)
         self._oauth_token: Optional[OAuth2Token] = None
-        self._users_cache: Dict[str, Dict[str, Any]] = {}
-        self._channels_cache: Dict[str, Dict[str, Any]] = {}
+        self._users_cache: dict[str, dict[str, Any]] = {}
+        self._channels_cache: dict[str, dict[str, Any]] = {}
 
-    def _get_headers(self) -> Dict[str, str]:
+    def _get_headers(self) -> dict[str, str]:
         """Get HTTP headers with authorization."""
         if self._oauth_token is None:
             # Load token from connector credentials
@@ -76,13 +77,13 @@ class SlackConnector(ConnectorBase):
     @rate_limit(calls=RATE_LIMIT_CALLS, period=RATE_LIMIT_PERIOD, handle_429=True)
     def _fetch_channels_page(
         self, cursor: Optional[str] = None, limit: int = 200
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fetch page of channels from Slack API.
-        
+
         Args:
             cursor: Pagination cursor from previous response
             limit: Number of channels per page (max 200)
-            
+
         Returns:
             API response with channels list and next_cursor
         """
@@ -112,15 +113,15 @@ class SlackConnector(ConnectorBase):
         cursor: Optional[str] = None,
         oldest: Optional[str] = None,
         limit: int = 200,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fetch page of messages from a Slack channel.
-        
+
         Args:
             channel_id: Slack channel ID
             cursor: Pagination cursor from previous response
             oldest: Fetch messages after this timestamp (for incremental sync)
             limit: Number of messages per page (max 1000)
-            
+
         Returns:
             API response with messages list and pagination info
         """
@@ -147,13 +148,13 @@ class SlackConnector(ConnectorBase):
     @rate_limit(calls=RATE_LIMIT_CALLS, period=RATE_LIMIT_PERIOD, handle_429=True)
     def _fetch_thread_replies(
         self, channel_id: str, thread_ts: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fetch replies to a threaded message.
-        
+
         Args:
             channel_id: Slack channel ID
             thread_ts: Thread timestamp (parent message timestamp)
-            
+
         Returns:
             API response with thread replies
         """
@@ -176,13 +177,13 @@ class SlackConnector(ConnectorBase):
     @rate_limit(calls=RATE_LIMIT_CALLS, period=RATE_LIMIT_PERIOD, handle_429=True)
     def _fetch_users_page(
         self, cursor: Optional[str] = None, limit: int = 200
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fetch page of users from Slack API.
-        
+
         Args:
             cursor: Pagination cursor from previous response
             limit: Number of users per page (max 200)
-            
+
         Returns:
             API response with users list and next_cursor
         """
@@ -238,17 +239,17 @@ class SlackConnector(ConnectorBase):
 
     def sync(
         self,
-        cursor_state: Optional[Dict[str, Any]] = None,
+        cursor_state: Optional[dict[str, Any]] = None,
         max_channels: Optional[int] = None,
         max_messages_per_channel: Optional[int] = None,
-    ) -> Iterator[Dict[str, Any]]:
+    ) -> Iterator[dict[str, Any]]:
         """Sync messages from Slack workspace.
-        
+
         Args:
             cursor_state: State from previous sync for incremental updates
             max_channels: Limit number of channels to sync (for testing)
             max_messages_per_channel: Limit messages per channel (for testing)
-            
+
         Yields:
             Document dicts with content, metadata, and acl_metadata
         """
@@ -417,13 +418,13 @@ class SlackConnector(ConnectorBase):
 
     def fetch_page(
         self, page_cursor: Optional[str] = None, page_size: int = 100
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fetch a page of channels (for API compatibility).
-        
+
         Args:
             page_cursor: Pagination cursor
             page_size: Number of items per page
-            
+
         Returns:
             Page of channels with cursor
         """
@@ -434,12 +435,12 @@ class SlackConnector(ConnectorBase):
             "has_more": bool(data.get("response_metadata", {}).get("next_cursor")),
         }
 
-    def extract_acl(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def extract_acl(self, metadata: dict[str, Any]) -> dict[str, Any]:
         """Extract ACL metadata from document metadata.
-        
+
         Args:
             metadata: Document metadata with channel info
-            
+
         Returns:
             ACL metadata with access control rules
         """

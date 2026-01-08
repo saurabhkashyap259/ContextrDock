@@ -4,7 +4,6 @@ from cryptography.fernet import Fernet
 
 from src.config import settings
 
-
 # Initialize Fernet cipher with key from settings
 _cipher = Fernet(settings.fernet_key.encode())
 
@@ -12,13 +11,13 @@ _cipher = Fernet(settings.fernet_key.encode())
 def encrypt_data(plaintext: str) -> str:
     """
     Encrypt plaintext string using Fernet symmetric encryption.
-    
+
     Args:
         plaintext: String to encrypt (e.g., API key, access token)
-        
+
     Returns:
         Base64-encoded encrypted string
-        
+
     Example:
         >>> encrypted = encrypt_data("my-api-key-123")
         >>> print(encrypted)
@@ -32,16 +31,16 @@ def encrypt_data(plaintext: str) -> str:
 def decrypt_data(encrypted: str) -> str:
     """
     Decrypt Fernet-encrypted string.
-    
+
     Args:
         encrypted: Base64-encoded encrypted string from encrypt_data()
-        
+
     Returns:
         Original plaintext string
-        
+
     Raises:
         cryptography.fernet.InvalidToken: If encrypted string is invalid or corrupted
-        
+
     Example:
         >>> plaintext = decrypt_data(encrypted_string)
         >>> print(plaintext)

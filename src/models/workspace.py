@@ -1,6 +1,5 @@
 """Workspace model for multi-tenancy support."""
 
-from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
@@ -11,7 +10,7 @@ from src.models.base import Base
 
 class Workspace(Base):
     """Workspace represents a logical container for a team's data.
-    
+
     This enables future multi-tenancy support where each organization
     has its own isolated workspace with separate users, connectors, and documents.
     """
@@ -27,7 +26,7 @@ class Workspace(Base):
         onupdate=func.now(),
         nullable=False,
     )
-    
+
     # Relationships
     connectors = relationship("Connector", back_populates="workspace")
 

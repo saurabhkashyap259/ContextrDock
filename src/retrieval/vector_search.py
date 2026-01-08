@@ -1,6 +1,6 @@
 """Vector similarity search using Qdrant."""
 
-from typing import Any, Dict, List
+from typing import Any
 
 from sqlalchemy.orm import Session
 
@@ -15,24 +15,24 @@ def search_by_vector(
     query: str,
     workspace_id: int,
     top_k: int = 10,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Search document chunks using vector similarity.
-    
+
     Process:
     1. Generate embedding for query
     2. Search Qdrant for similar vectors
     3. Enrich results with chunk data from PostgreSQL
-    
+
     Args:
         db_session: Database session
         query: Search query string
         workspace_id: Workspace ID for filtering
         top_k: Maximum number of results to return
-        
+
     Returns:
         List of search results with metadata and scores
-        
+
     Example:
         >>> results = search_by_vector(
         ...     db_session=session,
@@ -45,11 +45,11 @@ def search_by_vector(
     """
     if not query or not query.strip():
         return []
-    
+
     # Step 1: Generate embedding for query
     embedding_service = EmbeddingService()
     query_embedding = embedding_service.embed_text(query)
-    
+
     # Step 2: Search Qdrant for similar vectors
     qdrant_client = QdrantClient()
     vector_results = qdrant_client.search_vectors(
@@ -57,17 +57,17 @@ def search_by_vector(
         top_k=top_k,
         filters={"workspace_id": workspace_id},
     )
-    
+
     if not vector_results:
         return []
-    
+
     # Step 3: Enrich with chunk data from PostgreSQL
     chunk_ids = [result["metadata"].get("chunk_id") for result in vector_results]
     chunk_ids = [cid for cid in chunk_ids if cid is not None]
-    
+
     if not chunk_ids:
         return []
-    
+
     # Query database for chunk details
     chunks_query = db_session.query(
         DocumentChunk.id.label("chunk_id"),
@@ -85,17 +85,17 @@ def search_by_vector(
     ).filter(
         DocumentChunk.id.in_(chunk_ids)
     )
-    
+
     # Create lookup dict
     chunks_dict = {row.chunk_id: row for row in chunks_query.all()}
-    
+
     # Merge Qdrant results with database data
     results = []
     for vector_result in vector_results:
         chunk_id = vector_result["metadata"].get("chunk_id")
         if chunk_id not in chunks_dict:
             continue
-        
+
         chunk_data = chunks_dict[chunk_id]
         results.append({
             "chunk_id": chunk_data.chunk_id,
@@ -110,5 +110,5 @@ def search_by_vector(
             "workspace_id": chunk_data.workspace_id,
             "score": vector_result["score"],
         })
-    
+
     return results

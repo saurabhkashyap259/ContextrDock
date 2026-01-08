@@ -1,6 +1,5 @@
 """User model for authentication and identity management."""
 
-from datetime import datetime
 from typing import Any
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
@@ -13,7 +12,7 @@ from src.models.base import Base
 
 class User(Base):
     """User represents an individual with access to the platform.
-    
+
     Users are scoped to a workspace and have identity mappings to
     various connectors for permission-aware retrieval.
     """
@@ -24,11 +23,11 @@ class User(Base):
     workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=False, index=True)
     email = Column(String(255), nullable=False, index=True)
     role = Column(String(50), nullable=False, default="user")
-    
+
     # JSONB field storing connector-specific user IDs
     # Example: {"slack": "U123456", "jira": "account-id-123", "github": "username"}
     connector_identities = Column(JSONB, nullable=False, default=dict, server_default="{}")
-    
+
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(
         DateTime(timezone=True),

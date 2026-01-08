@@ -6,19 +6,19 @@ clickable links, and user-friendly layout.
 
 import logging
 import re
-from typing import Dict, List, Any, Optional
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
 
 class SlackFormatter:
     """Format RAG responses for Slack Block Kit."""
-    
+
     # Slack Block Kit limits
     MAX_BLOCK_TEXT_LENGTH = 3000
     MAX_BLOCKS_PER_MESSAGE = 50
     MAX_SNIPPET_LENGTH = 200
-    
+
     # Source icons
     SOURCE_ICONS = {
         "slack": "💬",
@@ -28,36 +28,36 @@ class SlackFormatter:
         "figma": "🎨",
         "dropbox": "📦"
     }
-    
+
     def format_answer(
         self,
-        answer_data: Dict[str, Any],
+        answer_data: dict[str, Any],
         include_feedback: bool = False
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Format RAG answer with citations as Slack blocks.
-        
+
         Args:
             answer_data: Dict with 'answer', 'citations', 'conversation_id'
             include_feedback: Whether to include feedback buttons
-            
+
         Returns:
             List of Slack Block Kit blocks
         """
         blocks = []
-        
+
         answer_text = answer_data.get("answer", "")
         citations = answer_data.get("citations", [])
         conversation_id = answer_data.get("conversation_id")
         has_more = answer_data.get("has_more_results", False)
-        
+
         # Answer section
         if answer_text:
             formatted_answer = self.markdown_to_mrkdwn(answer_text)
-            
+
             # Truncate if too long
             if len(formatted_answer) > self.MAX_BLOCK_TEXT_LENGTH:
                 formatted_answer = formatted_answer[:self.MAX_BLOCK_TEXT_LENGTH - 50] + "... _(truncated)_"
-            
+
             blocks.append({
                 "type": "section",
                 "text": {
@@ -74,12 +74,12 @@ class SlackFormatter:
                     "text": "_No answer available._"
                 }
             })
-        
+
         # Citations section
         if citations:
             # Divider
             blocks.append({"type": "divider"})
-            
+
             # Citations header
             blocks.append({
                 "type": "context",
@@ -90,13 +90,13 @@ class SlackFormatter:
                     }
                 ]
             })
-            
+
             # Individual citations
             for idx, citation in enumerate(citations[:10], 1):  # Limit to 10 citations
                 citation_block = self.format_citation(citation, idx)
                 if citation_block:
                     blocks.append(citation_block)
-            
+
             if len(citations) > 10:
                 blocks.append({
                     "type": "context",
@@ -107,7 +107,7 @@ class SlackFormatter:
                         }
                     ]
                 })
-        
+
         # More results indicator
         if has_more:
             blocks.append({
@@ -119,7 +119,7 @@ class SlackFormatter:
                     }
                 ]
             })
-        
+
         # Metadata footer
         if conversation_id:
             blocks.append({
@@ -131,22 +131,22 @@ class SlackFormatter:
                     }
                 ]
             })
-        
+
         # Feedback buttons
         if include_feedback:
             feedback_block = self._create_feedback_buttons(conversation_id)
             if feedback_block:
                 blocks.append(feedback_block)
-        
+
         return blocks[:self.MAX_BLOCKS_PER_MESSAGE]
-    
-    def format_citation(self, citation: Dict[str, Any], index: int) -> Optional[Dict[str, Any]]:
+
+    def format_citation(self, citation: dict[str, Any], index: int) -> Optional[dict[str, Any]]:
         """Format a single citation as a Slack block.
-        
+
         Args:
             citation: Citation dict with source, title, url, snippet
             index: Citation number (1-based)
-            
+
         Returns:
             Slack section block or None if invalid
         """
@@ -154,27 +154,27 @@ class SlackFormatter:
         title = citation.get("title", "Untitled")
         url = citation.get("url")
         snippet = citation.get("snippet", "")
-        
+
         # Get source icon
         icon = self.SOURCE_ICONS.get(source, "📎")
-        
+
         # Format title with link
         if url:
             title_text = f"<{url}|{title}>"
         else:
             title_text = title
-        
+
         # Build citation text
         citation_text = f"{icon} *[{index}]* {title_text}"
-        
+
         # Add snippet if available
         if snippet:
             # Truncate snippet
             if len(snippet) > self.MAX_SNIPPET_LENGTH:
                 snippet = snippet[:self.MAX_SNIPPET_LENGTH] + "..."
-            
+
             citation_text += f"\n_{snippet}_"
-        
+
         return {
             "type": "section",
             "text": {
@@ -182,34 +182,34 @@ class SlackFormatter:
                 "text": citation_text
             }
         }
-    
+
     def markdown_to_mrkdwn(self, text: str) -> str:
         """Convert markdown to Slack mrkdwn format.
-        
+
         Args:
             text: Markdown text
-            
+
         Returns:
             Slack mrkdwn formatted text
         """
         # Convert **bold** to *bold*
         text = re.sub(r'\*\*(.*?)\*\*', r'*\1*', text)
-        
+
         # Slack supports both * and _ for emphasis
         # Keep code blocks as is (```...```)
         # Keep inline code as is (`...`)
-        
+
         # Convert markdown links [text](url) to <url|text>
         text = re.sub(r'\[(.*?)\]\((.*?)\)', r'<\2|\1>', text)
-        
+
         return text
-    
-    def format_error(self, error_message: str) -> List[Dict[str, Any]]:
+
+    def format_error(self, error_message: str) -> list[dict[str, Any]]:
         """Format error message for user.
-        
+
         Args:
             error_message: Technical error message
-            
+
         Returns:
             List of Slack blocks with user-friendly error
         """
@@ -233,10 +233,10 @@ class SlackFormatter:
                 ]
             }
         ]
-    
-    def format_no_results(self) -> List[Dict[str, Any]]:
+
+    def format_no_results(self) -> list[dict[str, Any]]:
         """Format 'no results found' message.
-        
+
         Returns:
             List of Slack blocks
         """
@@ -253,10 +253,10 @@ class SlackFormatter:
                 }
             }
         ]
-    
-    def format_rate_limit(self) -> List[Dict[str, Any]]:
+
+    def format_rate_limit(self) -> list[dict[str, Any]]:
         """Format rate limit message.
-        
+
         Returns:
             List of Slack blocks
         """
@@ -270,13 +270,13 @@ class SlackFormatter:
                 }
             }
         ]
-    
-    def format_dm_suggestion(self, user_id: str) -> List[Dict[str, Any]]:
+
+    def format_dm_suggestion(self, user_id: str) -> list[dict[str, Any]]:
         """Format suggestion to use DM for privacy.
-        
+
         Args:
             user_id: Slack user ID
-            
+
         Returns:
             List of Slack blocks (ephemeral message)
         """
@@ -291,19 +291,19 @@ class SlackFormatter:
                 }
             }
         ]
-    
-    def _create_feedback_buttons(self, conversation_id: Optional[str]) -> Optional[Dict[str, Any]]:
+
+    def _create_feedback_buttons(self, conversation_id: Optional[str]) -> Optional[dict[str, Any]]:
         """Create feedback action buttons.
-        
+
         Args:
             conversation_id: Conversation ID for tracking
-            
+
         Returns:
             Actions block or None
         """
         if not conversation_id:
             return None
-        
+
         return {
             "type": "actions",
             "elements": [
@@ -329,9 +329,9 @@ class SlackFormatter:
         }
 
 
-def format_help_message() -> List[Dict[str, Any]]:
+def format_help_message() -> list[dict[str, Any]]:
     """Format help message explaining how to use the bot.
-    
+
     Returns:
         List of Slack blocks
     """

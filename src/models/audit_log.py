@@ -5,11 +5,12 @@ Provides immutable audit trail for all write operations in the system.
 Tracks who did what, when, and stores before/after state changes.
 """
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Any, Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text, CheckConstraint
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB, INET
+from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, String
+from sqlalchemy.dialects.postgresql import INET, JSONB
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import relationship
 
 from src.database import Base
@@ -18,17 +19,17 @@ from src.database import Base
 class AuditLog(Base):
     """
     Immutable audit log entry for compliance and debugging.
-    
+
     Records all significant write operations:
     - Connector creation/update/deletion
     - Agent action approval/execution/cancellation
     - Sync run completion/failure
     - User role changes
     - Permission modifications
-    
+
     Audit logs are INSERT-only (no UPDATE or DELETE) to ensure integrity
     of the audit trail. Retention policy keeps logs for minimum 1 year.
-    
+
     Attributes:
         id: Unique log entry identifier
         workspace_id: Workspace where action occurred
@@ -45,14 +46,14 @@ class AuditLog(Base):
     id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
     workspace_id = Column(PGUUID(as_uuid=True), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True)
     actor_user_id = Column(PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=True, index=True)
-    
+
     action = Column(String(100), nullable=False, index=True)
     target_type = Column(String(50), nullable=False)
     target_id = Column(PGUUID(as_uuid=True), nullable=False)
-    
+
     details_json = Column(JSONB, nullable=False, default={})
     ip_address = Column(INET, nullable=True)
-    
+
     created_at = Column(DateTime(timezone=False), nullable=False, default=datetime.utcnow, index=True)
 
     # Composite index for entity history queries
@@ -71,13 +72,13 @@ class AuditLog(Base):
         target_type: str,
         target_id: UUID,
         actor_user_id: Optional[UUID] = None,
-        details_json: Optional[Dict[str, Any]] = None,
+        details_json: Optional[dict[str, Any]] = None,
         ip_address: Optional[str] = None,
         **kwargs
     ):
         """
         Initialize AuditLog.
-        
+
         Args:
             workspace_id: Workspace where action occurred
             action: Action type in 'entity.verb' format
@@ -99,7 +100,7 @@ class AuditLog(Base):
     def is_system_action(self) -> bool:
         """
         Check if action was performed by system (vs user).
-        
+
         Returns:
             True if actor_user_id is NULL (system action)
         """
@@ -108,16 +109,16 @@ class AuditLog(Base):
     def get_actor_type(self) -> str:
         """
         Get actor type as string.
-        
+
         Returns:
             'system' if system action, 'user' if user action
         """
         return "system" if self.is_system_action() else "user"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Convert audit log to dictionary representation.
-        
+
         Returns:
             Dictionary with all log fields
         """

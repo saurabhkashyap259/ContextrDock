@@ -23,10 +23,10 @@ class SyncStatus(str, Enum):
 class SyncRun(Base):
     """
     SyncRun tracks individual sync operations for connectors.
-    
+
     Each time a connector syncs (either scheduled or manual), a SyncRun
     record is created to track progress, status, and results.
-    
+
     Attributes:
         connector_id: The connector being synced
         status: Current status (running, completed, failed, cancelled)
@@ -43,7 +43,7 @@ class SyncRun(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     connector_id = Column(Integer, ForeignKey("connectors.id"), nullable=False, index=True)
-    
+
     # Sync status and timing
     status = Column(
         String(50),
@@ -52,22 +52,22 @@ class SyncRun(Base):
     )  # "running", "completed", "failed", "cancelled"
     started_at = Column(DateTime(timezone=True), nullable=False)
     completed_at = Column(DateTime(timezone=True), nullable=True)
-    
+
     # Sync results
     documents_added = Column(Integer, nullable=False, default=0, server_default="0")
     documents_updated = Column(Integer, nullable=False, default=0, server_default="0")
     documents_deleted = Column(Integer, nullable=False, default=0, server_default="0")
-    
+
     # Error tracking
     error_message = Column(Text, nullable=True)
-    
+
     # Incremental sync state
     # Example: {"next_page_token": "abc123", "last_message_ts": "1234567890.123456"}
     cursor_state_json = Column(JSONB, nullable=True)
-    
+
     # Metadata
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    
+
     # Relationships
     connector = relationship("Connector", back_populates="sync_runs")
 

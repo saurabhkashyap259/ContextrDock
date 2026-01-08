@@ -1,12 +1,12 @@
 """ACL extraction and permission checking for Figma files."""
 
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Optional
 
 
 def extract_project_members(
     project_id: str,
     figma_client: Any,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Fetch members for a project.
 
     Args:
@@ -50,8 +50,8 @@ def normalize_figma_acl(
     project_id: str,
     project_name: str,
     team_id: str,
-    members: Optional[List[Dict[str, Any]]] = None,
-) -> Dict[str, Any]:
+    members: Optional[list[dict[str, Any]]] = None,
+) -> dict[str, Any]:
     """Normalize Figma ACL to standard format.
 
     Args:
@@ -86,8 +86,8 @@ def normalize_figma_acl(
 
 def check_user_access(
     user_figma_id: str,
-    acl_metadata: Dict[str, Any],
-    user_team_memberships: Set[str],
+    acl_metadata: dict[str, Any],
+    user_team_memberships: set[str],
 ) -> bool:
     """Check if user has access to a Figma document.
 
@@ -121,9 +121,9 @@ def check_user_access(
 
 
 def build_acl_filter_query(
-    user_figma_ids: List[str],
-    user_team_memberships: Set[str],
-) -> Dict[str, Any]:
+    user_figma_ids: list[str],
+    user_team_memberships: set[str],
+) -> dict[str, Any]:
     """Build vector database filter query for Figma ACL.
 
     Args:

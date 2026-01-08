@@ -11,13 +11,11 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
-from slack_sdk.errors import SlackApiError
+from slack_bolt.async_app import AsyncApp
 
-from src.integrations.slack_bot import SlackBot, SlackPrivacyHandler
-from src.integrations.slack_formatter import SlackFormatter, format_help_message
-from src.config.settings import settings
+from src.integrations.slack_bot import SlackBot
+from src.integrations.slack_formatter import format_help_message
 
 logging.basicConfig(
     level=logging.INFO,
@@ -33,7 +31,7 @@ app = AsyncApp(token=os.environ.get("SLACK_BOT_TOKEN"))
 # Mock query service for now
 class MockQueryService:
     """Mock query service until real implementation is ready."""
-    
+
     async def query(
         self,
         question: str,
@@ -89,7 +87,7 @@ async def handle_app_mentions(event, say, logger):
 async def handle_ask_command(ack, command, respond, logger):
     """Handle /ask slash command."""
     await ack()
-    
+
     try:
         response = await bot.handle_slash_command(command)
         await respond(response)
@@ -105,9 +103,9 @@ async def handle_ask_command(ack, command, respond, logger):
 async def handle_contextdock_command(ack, command, respond):
     """Handle /contextdock command (help and settings)."""
     await ack()
-    
+
     subcommand = command.get("text", "").strip().lower()
-    
+
     if subcommand == "help" or not subcommand:
         blocks = format_help_message()
         await respond({
@@ -145,7 +143,7 @@ async def handle_app_home_opened(event, client, logger):
     """Handle App Home tab opened."""
     try:
         user_id = event["user"]
-        
+
         # Publish home view
         await client.views_publish(
             user_id=user_id,
@@ -192,29 +190,29 @@ async def handle_app_home_opened(event, client, logger):
 async def main():
     """Start the Slack bot."""
     logger.info("Starting ContextDock Slack Bot...")
-    
+
     # Verify tokens are set
     bot_token = os.environ.get("SLACK_BOT_TOKEN")
     app_token = os.environ.get("SLACK_APP_TOKEN")
-    
+
     if not bot_token or not app_token:
         logger.error("SLACK_BOT_TOKEN and SLACK_APP_TOKEN must be set")
         sys.exit(1)
-    
+
     logger.info("Slack tokens verified")
-    
+
     # Start Socket Mode handler
     handler = AsyncSocketModeHandler(app, app_token)
-    
+
     logger.info("Connecting to Slack...")
     await handler.start_async()
-    
+
     logger.info("✅ ContextDock Slack Bot is running!")
 
 
 if __name__ == "__main__":
     import asyncio
-    
+
     try:
         asyncio.run(main())
     except KeyboardInterrupt:

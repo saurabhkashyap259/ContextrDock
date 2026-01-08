@@ -1,7 +1,6 @@
 """Celery application and Beat scheduler configuration."""
 
 import logging
-from typing import Dict
 
 from celery import Celery
 from celery.schedules import crontab
@@ -70,7 +69,7 @@ def parse_cron_expression(cron_expr: str) -> crontab:
         raise ValueError(f"Invalid cron expression: {cron_expr}") from e
 
 
-def get_beat_schedule() -> Dict:
+def get_beat_schedule() -> dict:
     """Generate Celery Beat schedule from active connectors.
 
     Returns:

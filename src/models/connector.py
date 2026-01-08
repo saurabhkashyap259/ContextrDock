@@ -12,10 +12,10 @@ from src.models.base import Base
 class Connector(Base):
     """
     Connector represents a configured connection to a workplace tool.
-    
+
     Stores configuration, encrypted credentials, and sync state for each
     connected data source (Slack, Jira, Confluence, etc.).
-    
+
     Attributes:
         workspace_id: Workspace this connector belongs to
         connector_definition_id: Type of connector (Slack, Jira, etc.)
@@ -38,16 +38,16 @@ class Connector(Base):
         nullable=False,
         index=True
     )
-    
+
     name = Column(String(255), nullable=False)
     config_json = Column(JSONB, nullable=False, default=dict, server_default="{}")
     credentials_encrypted = Column(LargeBinary, nullable=True)  # Fernet encrypted bytes
     sync_schedule = Column(String(100), nullable=True)  # Cron expression
     is_active = Column(Boolean, nullable=False, default=True, server_default="true")
-    
+
     last_synced_at = Column(DateTime(timezone=True), nullable=True)
     cursor_state_json = Column(JSONB, nullable=True)  # For incremental sync
-    
+
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(
         DateTime(timezone=True),
@@ -55,7 +55,7 @@ class Connector(Base):
         onupdate=func.now(),
         nullable=False,
     )
-    
+
     # Relationships
     workspace = relationship("Workspace", back_populates="connectors")
     connector_definition = relationship("ConnectorDefinition", back_populates="connectors")

@@ -9,12 +9,12 @@ Tracks:
 - Vector search latency (histogram)
 - Embedding generation time (histogram)
 """
-from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
+import time
+from collections.abc import Callable
+
 from fastapi import Request, Response
 from fastapi.responses import Response as FastAPIResponse
-import time
-from typing import Callable
-
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, Histogram, generate_latest
 
 # Define metrics
 REQUEST_COUNT = Counter(
@@ -82,7 +82,7 @@ CIRCUIT_BREAKER_STATE = Gauge(
 async def prometheus_middleware(request: Request, call_next: Callable) -> Response:
     """
     Middleware to track request metrics.
-    
+
     Records:
     - Request count by method, endpoint, status
     - Request latency by method, endpoint
@@ -91,34 +91,34 @@ async def prometheus_middleware(request: Request, call_next: Callable) -> Respon
     # Skip metrics endpoint itself
     if request.url.path == "/metrics":
         return await call_next(request)
-    
+
     # Increment active requests
     ACTIVE_REQUESTS.inc()
-    
+
     # Track request start time
     start_time = time.time()
-    
+
     try:
         # Process request
         response = await call_next(request)
-        
+
         # Calculate latency
         latency = time.time() - start_time
-        
+
         # Record metrics
         REQUEST_COUNT.labels(
             method=request.method,
             endpoint=request.url.path,
             status=response.status_code,
         ).inc()
-        
+
         REQUEST_LATENCY.labels(
             method=request.method,
             endpoint=request.url.path,
         ).observe(latency)
-        
+
         return response
-    
+
     finally:
         # Decrement active requests
         ACTIVE_REQUESTS.dec()
@@ -127,7 +127,7 @@ async def prometheus_middleware(request: Request, call_next: Callable) -> Respon
 def metrics_endpoint() -> FastAPIResponse:
     """
     Endpoint to expose Prometheus metrics.
-    
+
     Returns metrics in Prometheus text format.
     """
     metrics = generate_latest()
@@ -173,7 +173,7 @@ def record_document_ingestion(source_type: str, count: int = 1):
 def update_circuit_breaker_state(service: str, state: str):
     """
     Update circuit breaker state metric.
-    
+
     Args:
         service: Service name (e.g., 'qdrant', 'openai')
         state: State ('closed', 'open', 'half_open')
@@ -183,5 +183,5 @@ def update_circuit_breaker_state(service: str, state: str):
         "open": 1,
         "half_open": 2,
     }
-    
+
     CIRCUIT_BREAKER_STATE.labels(service=service).set(state_values.get(state, 0))

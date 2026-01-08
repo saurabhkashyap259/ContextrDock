@@ -4,7 +4,6 @@ Exports SlackConnector and connector definition for plugin discovery.
 """
 
 from src.connectors.slack.connector import SlackConnector
-from src.models.connector_definition import ConnectorDefinition
 
 # Slack connector definition
 SLACK_CONNECTOR_DEFINITION = {

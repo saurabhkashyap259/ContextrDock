@@ -1,7 +1,7 @@
 """Admin API routes for user management."""
 
 import logging
-from typing import Dict, Any
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -19,14 +19,14 @@ class IdentityMappingsResponse(BaseModel):
     """Response model for identity mappings."""
     user_id: int
     email: str
-    connector_identities: Dict[str, Any]
-    
+    connector_identities: dict[str, Any]
+
     model_config = {"from_attributes": True}
 
 
 class IdentityMappingsUpdate(BaseModel):
     """Request model for updating identity mappings."""
-    connector_identities: Dict[str, Dict[str, Any]]
+    connector_identities: dict[str, dict[str, Any]]
 
 
 @router.get("/users/{user_id}/identity-mappings", response_model=IdentityMappingsResponse)
@@ -35,25 +35,25 @@ def get_user_identity_mappings(
     db: Session = Depends(get_db),
 ) -> IdentityMappingsResponse:
     """Get user's connector identity mappings.
-    
+
     Args:
         user_id: User ID
         db: Database session
-        
+
     Returns:
         User's identity mappings for all connectors
-        
+
     Raises:
         HTTPException: If user not found
     """
     user = db.query(User).filter_by(id=user_id).first()
-    
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User {user_id} not found"
         )
-    
+
     return IdentityMappingsResponse(
         user_id=user.id,
         email=user.email,
@@ -68,21 +68,21 @@ def update_user_identity_mappings(
     db: Session = Depends(get_db),
 ) -> IdentityMappingsResponse:
     """Update user's connector identity mappings.
-    
+
     This endpoint allows administrators to map user identities across
     different connectors. Required for ACL validation to work correctly.
-    
+
     Args:
         user_id: User ID
         update_data: New identity mappings
         db: Database session
-        
+
     Returns:
         Updated user identity mappings
-        
+
     Raises:
         HTTPException: If user not found or update fails
-        
+
     Example:
         PATCH /v1/admin/users/1/identity-mappings
         {
@@ -101,34 +101,34 @@ def update_user_identity_mappings(
         }
     """
     user = db.query(User).filter_by(id=user_id).first()
-    
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User {user_id} not found"
         )
-    
+
     try:
         # Merge new identities with existing ones
         current_identities = user.connector_identities or {}
         current_identities.update(update_data.connector_identities)
-        
+
         user.connector_identities = current_identities
-        
+
         db.commit()
         db.refresh(user)
-        
+
         logger.info(
             f"Updated identity mappings for user {user_id}. "
             f"Connectors: {list(update_data.connector_identities.keys())}"
         )
-        
+
         return IdentityMappingsResponse(
             user_id=user.id,
             email=user.email,
             connector_identities=user.connector_identities
         )
-    
+
     except Exception as e:
         db.rollback()
         logger.error(f"Failed to update identity mappings for user {user_id}: {e}")

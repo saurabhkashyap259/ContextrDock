@@ -1,6 +1,6 @@
 """GitHub connector plugin registration."""
 
-from typing import Any, Dict
+from typing import Any
 
 # Connector metadata
 GITHUB_CONNECTOR_DEFINITION = {
@@ -65,7 +65,7 @@ def get_connector_class():
     return GitHubConnector
 
 
-def get_connector_definition() -> Dict[str, Any]:
+def get_connector_definition() -> dict[str, Any]:
     """Get the connector definition for registration.
 
     Returns:

@@ -1,7 +1,7 @@
 """JWT authentication service."""
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from jose import JWTError, jwt
 from pydantic import BaseModel
@@ -17,13 +17,13 @@ class TokenData(BaseModel):
     token_type: str  # "access" or "refresh"
 
 
-def create_access_token(data: Dict[str, Any]) -> str:
+def create_access_token(data: dict[str, Any]) -> str:
     """
     Create a JWT access token with 15-minute expiration.
-    
+
     Args:
         data: Dictionary containing token payload (must include "sub" for email)
-        
+
     Returns:
         Encoded JWT token string
     """
@@ -38,13 +38,13 @@ def create_access_token(data: Dict[str, Any]) -> str:
     return encoded_jwt
 
 
-def create_refresh_token(data: Dict[str, Any]) -> str:
+def create_refresh_token(data: dict[str, Any]) -> str:
     """
     Create a JWT refresh token with 7-day expiration.
-    
+
     Args:
         data: Dictionary containing token payload (must include "sub" for email)
-        
+
     Returns:
         Encoded JWT token string
     """
@@ -62,40 +62,40 @@ def create_refresh_token(data: Dict[str, Any]) -> str:
 def verify_token(token: str, expected_type: str = "access") -> Optional[TokenData]:
     """
     Verify and decode a JWT token.
-    
+
     Args:
         token: JWT token string to verify
         expected_type: Expected token type ("access" or "refresh")
-        
+
     Returns:
         TokenData if valid, None if invalid/expired
     """
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.jwt_algorithm])
-        
+
         email: str = payload.get("sub")
         user_id: int = payload.get("user_id")
         token_type: str = payload.get("type")
-        
+
         if email is None or user_id is None:
             return None
-            
+
         if token_type != expected_type:
             return None
-            
+
         return TokenData(email=email, user_id=user_id, token_type=token_type)
-        
+
     except JWTError:
         return None
 
 
-def decode_token(token: str) -> Optional[Dict[str, Any]]:
+def decode_token(token: str) -> Optional[dict[str, Any]]:
     """
     Decode a JWT token without validation (for debugging/inspection).
-    
+
     Args:
         token: JWT token string to decode
-        
+
     Returns:
         Decoded payload dictionary if successful, None if invalid format
     """

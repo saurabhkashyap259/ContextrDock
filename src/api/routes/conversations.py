@@ -1,24 +1,26 @@
 """Conversation API routes."""
 
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from src.api.middleware.auth import get_current_user
+from src.api.schemas.query import (
+    Citation,
+    ConversationListResponse,
+    MessageListResponse,
+)
 from src.api.schemas.query import (
     Conversation as ConversationSchema,
-    ConversationListResponse,
-    Message as MessageSchema,
-    MessageListResponse,
-    Citation,
 )
-from src.api.middleware.auth import get_current_user
-from src.models.user import User
+from src.api.schemas.query import (
+    Message as MessageSchema,
+)
+from src.database import get_db
 from src.models.conversation import Conversation
 from src.models.message import Message
-from src.database import get_db
-
+from src.models.user import User
 
 router = APIRouter(prefix="/v1", tags=["conversations"])
 
@@ -32,16 +34,16 @@ def list_conversations(
 ) -> ConversationListResponse:
     """
     List user's conversations with pagination.
-    
+
     Returns conversations ordered by most recent activity first.
     Includes message count for each conversation.
-    
+
     Args:
         page: Page number (1-indexed)
         page_size: Number of items per page (1-100)
         current_user: Authenticated user
         db: Database session
-        
+
     Returns:
         Paginated list of conversations
     """
@@ -50,7 +52,7 @@ def list_conversations(
         Conversation.workspace_id == current_user.workspace_id,
         Conversation.user_id == current_user.id,
     ).scalar()
-    
+
     # Get paginated conversations
     offset = (page - 1) * page_size
     conversations = (
@@ -69,7 +71,7 @@ def list_conversations(
         .limit(page_size)
         .all()
     )
-    
+
     # Build response
     conversation_list = [
         ConversationSchema(
@@ -84,7 +86,7 @@ def list_conversations(
         )
         for conv, message_count in conversations
     ]
-    
+
     return ConversationListResponse(
         conversations=conversation_list,
         total=total or 0,
@@ -101,18 +103,18 @@ def get_conversation_messages(
 ) -> MessageListResponse:
     """
     Get all messages in a conversation.
-    
+
     Returns messages ordered chronologically (oldest first).
     Only accessible to the conversation owner.
-    
+
     Args:
         conversation_id: Conversation ID
         current_user: Authenticated user
         db: Database session
-        
+
     Returns:
         List of messages with citations
-        
+
     Raises:
         404: Conversation not found or access denied
     """
@@ -122,13 +124,13 @@ def get_conversation_messages(
         Conversation.workspace_id == current_user.workspace_id,
         Conversation.user_id == current_user.id,
     ).first()
-    
+
     if not conversation:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Conversation not found or access denied"
         )
-    
+
     # Get messages
     messages = (
         db.query(Message)
@@ -136,7 +138,7 @@ def get_conversation_messages(
         .order_by(Message.created_at.asc())
         .all()
     )
-    
+
     # Build response
     message_list = []
     for msg in messages:
@@ -152,7 +154,7 @@ def get_conversation_messages(
                 )
                 for c in msg.citations_json
             ]
-        
+
         message_list.append(
             MessageSchema(
                 id=msg.id,
@@ -163,7 +165,7 @@ def get_conversation_messages(
                 created_at=msg.created_at,
             )
         )
-    
+
     return MessageListResponse(
         messages=message_list,
         conversation_id=conversation_id,

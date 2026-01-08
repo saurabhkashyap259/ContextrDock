@@ -1,10 +1,10 @@
 """API routes for connector management."""
 
 import logging
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import desc, func
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from src.api.schemas.connector import (
@@ -30,7 +30,7 @@ router = APIRouter(prefix="/v1/connectors", tags=["connectors"])
 
 def get_workspace_id() -> int:
     """Get workspace ID from auth context.
-    
+
     TODO: Replace with actual auth/workspace resolution
     For now, returns hardcoded workspace ID for development.
     """
@@ -39,13 +39,13 @@ def get_workspace_id() -> int:
 
 def encrypt_credentials(credentials: dict) -> bytes:
     """Encrypt connector credentials.
-    
+
     Args:
         credentials: Credentials dictionary
-        
+
     Returns:
         Encrypted credentials as bytes
-        
+
     TODO: Implement proper encryption using Fernet
     """
     import json
@@ -55,13 +55,13 @@ def encrypt_credentials(credentials: dict) -> bytes:
 
 def decrypt_credentials(encrypted: bytes) -> dict:
     """Decrypt connector credentials.
-    
+
     Args:
         encrypted: Encrypted credentials bytes
-        
+
     Returns:
         Decrypted credentials dictionary
-        
+
     TODO: Implement proper decryption using Fernet
     """
     import json
@@ -79,7 +79,7 @@ def list_connectors(
     db: Session = Depends(get_db),
 ) -> ConnectorListResponse:
     """List all connectors for workspace.
-    
+
     Args:
         page: Page number (1-indexed)
         page_size: Number of items per page
@@ -87,7 +87,7 @@ def list_connectors(
         is_active: Filter by active status
         workspace_id: Workspace ID from auth
         db: Database session
-        
+
     Returns:
         List of connectors with pagination
     """
@@ -121,15 +121,15 @@ def create_connector(
     db: Session = Depends(get_db),
 ) -> ConnectorResponse:
     """Create a new connector.
-    
+
     Args:
         connector_data: Connector creation data
         workspace_id: Workspace ID from auth
         db: Database session
-        
+
     Returns:
         Created connector
-        
+
     Raises:
         HTTPException: If connector creation fails
     """
@@ -175,15 +175,15 @@ def get_connector(
     db: Session = Depends(get_db),
 ) -> ConnectorDetailResponse:
     """Get connector by ID with recent sync runs.
-    
+
     Args:
         connector_id: Connector ID
         workspace_id: Workspace ID from auth
         db: Database session
-        
+
     Returns:
         Connector details with recent sync runs
-        
+
     Raises:
         HTTPException: If connector not found
     """
@@ -224,16 +224,16 @@ def update_connector(
     db: Session = Depends(get_db),
 ) -> ConnectorResponse:
     """Update connector configuration.
-    
+
     Args:
         connector_id: Connector ID
         connector_data: Connector update data
         workspace_id: Workspace ID from auth
         db: Database session
-        
+
     Returns:
         Updated connector
-        
+
     Raises:
         HTTPException: If connector not found or update fails
     """
@@ -288,12 +288,12 @@ def delete_connector(
     db: Session = Depends(get_db),
 ) -> None:
     """Delete connector.
-    
+
     Args:
         connector_id: Connector ID
         workspace_id: Workspace ID from auth
         db: Database session
-        
+
     Raises:
         HTTPException: If connector not found or delete fails
     """
@@ -332,16 +332,16 @@ def trigger_sync(
     db: Session = Depends(get_db),
 ) -> SyncTriggerResponse:
     """Trigger manual sync for connector.
-    
+
     Args:
         connector_id: Connector ID
         sync_request: Sync trigger options
         workspace_id: Workspace ID from auth
         db: Database session
-        
+
     Returns:
         Sync trigger response with sync_run_id
-        
+
     Raises:
         HTTPException: If connector not found or sync already running
     """
@@ -415,7 +415,7 @@ def list_sync_runs(
     db: Session = Depends(get_db),
 ) -> SyncRunListResponse:
     """List sync runs for connector.
-    
+
     Args:
         connector_id: Connector ID
         page: Page number (1-indexed)
@@ -423,10 +423,10 @@ def list_sync_runs(
         status_filter: Filter by sync status
         workspace_id: Workspace ID from auth
         db: Database session
-        
+
     Returns:
         List of sync runs with pagination
-        
+
     Raises:
         HTTPException: If connector not found
     """

@@ -1,13 +1,13 @@
 """ACL extraction and permission checking for GitHub repositories."""
 
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Optional
 
 
 def extract_repo_collaborators(
     owner: str,
     repo: str,
     github_client: Any,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Fetch collaborators for a repository.
 
     Args:
@@ -44,8 +44,8 @@ def normalize_github_acl(
     visibility: str,
     owner: str,
     repo_name: str,
-    collaborators: Optional[List[Dict[str, Any]]] = None,
-) -> Dict[str, Any]:
+    collaborators: Optional[list[dict[str, Any]]] = None,
+) -> dict[str, Any]:
     """Normalize GitHub ACL to standard format.
 
     Args:
@@ -89,8 +89,8 @@ def normalize_github_acl(
 
 def check_user_access(
     user_github_login: str,
-    acl_metadata: Dict[str, Any],
-    user_org_memberships: Set[str],
+    acl_metadata: dict[str, Any],
+    user_org_memberships: set[str],
 ) -> bool:
     """Check if user has access to a GitHub document.
 
@@ -133,9 +133,9 @@ def check_user_access(
 
 
 def build_acl_filter_query(
-    user_github_logins: List[str],
-    user_org_memberships: Set[str],
-) -> Dict[str, Any]:
+    user_github_logins: list[str],
+    user_org_memberships: set[str],
+) -> dict[str, Any]:
     """Build vector database filter query for GitHub ACL.
 
     Args:

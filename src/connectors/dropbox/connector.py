@@ -1,8 +1,8 @@
 """Dropbox connector for syncing files and folders."""
 
 import json
-from datetime import datetime, timezone
-from typing import Any, Dict, Iterator, List, Optional
+from collections.abc import Iterator
+from typing import Any, Optional
 
 import requests
 
@@ -60,7 +60,7 @@ class DropboxConnector(ConnectorBase):
         self.folders = self.config.get("folders", [""])  # Empty string = root
         self.include_shared = self.config.get("include_shared", True)
 
-    def _get_auth_headers(self) -> Dict[str, str]:
+    def _get_auth_headers(self) -> dict[str, str]:
         """Get authentication headers for Dropbox API.
 
         Returns:
@@ -81,7 +81,7 @@ class DropboxConnector(ConnectorBase):
         self,
         path: str,
         cursor: Optional[str] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """List files and folders in a directory.
 
         Args:
@@ -118,7 +118,7 @@ class DropboxConnector(ConnectorBase):
     def _download_file(
         self,
         path: str,
-    ) -> tuple[bytes, Dict[str, Any]]:
+    ) -> tuple[bytes, dict[str, Any]]:
         """Download file content.
 
         Args:
@@ -145,7 +145,7 @@ class DropboxConnector(ConnectorBase):
     def _list_shared_links(
         self,
         path: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """List shared links for a path.
 
         Args:
@@ -216,9 +216,9 @@ class DropboxConnector(ConnectorBase):
 
     def sync(
         self,
-        cursor_state: Optional[Dict[str, Any]] = None,
+        cursor_state: Optional[dict[str, Any]] = None,
         max_files: Optional[int] = None,
-    ) -> Iterator[Dict[str, Any]]:
+    ) -> Iterator[dict[str, Any]]:
         """Sync files and folders from Dropbox.
 
         Args:
@@ -314,9 +314,9 @@ class DropboxConnector(ConnectorBase):
 
     def extract_acl(
         self,
-        entry: Dict[str, Any],
-        shared_links: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        entry: dict[str, Any],
+        shared_links: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         """Extract ACL metadata from file entry.
 
         Args:

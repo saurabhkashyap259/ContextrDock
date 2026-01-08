@@ -1,12 +1,12 @@
 """ACL extraction and permission checking for Dropbox files."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 def extract_folder_members(
     path: str,
     dropbox_client: Any,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Fetch members for a shared folder.
 
     Args:
@@ -64,9 +64,9 @@ def extract_folder_members(
 def normalize_dropbox_acl(
     path: str,
     is_shared: bool,
-    members: Optional[List[Dict[str, Any]]] = None,
-    shared_links: Optional[List[Dict[str, Any]]] = None,
-) -> Dict[str, Any]:
+    members: Optional[list[dict[str, Any]]] = None,
+    shared_links: Optional[list[dict[str, Any]]] = None,
+) -> dict[str, Any]:
     """Normalize Dropbox ACL to standard format.
 
     Args:
@@ -123,7 +123,7 @@ def normalize_dropbox_acl(
 
 def check_user_access(
     user_email: str,
-    acl_metadata: Dict[str, Any],
+    acl_metadata: dict[str, Any],
 ) -> bool:
     """Check if user has access to a Dropbox document.
 
@@ -156,7 +156,7 @@ def check_user_access(
 
 def build_acl_filter_query(
     user_email: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Build vector database filter query for Dropbox ACL.
 
     Args:

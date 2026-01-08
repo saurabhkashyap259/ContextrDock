@@ -7,11 +7,13 @@ generation and approval workflow.
 """
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional, Dict, Any
+from typing import Any, Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import Column, String, Enum as SQLEnum, DateTime, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
+from sqlalchemy import Column, DateTime, ForeignKey, Text
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import relationship
 
 from src.database import Base
@@ -37,7 +39,7 @@ class ActionStatus(str, Enum):
 class AgentAction(Base):
     """
     Represents an AI-generated action requiring human approval.
-    
+
     Workflow:
     1. User requests content creation via chat/API
     2. System generates preview with all fields populated
@@ -46,7 +48,7 @@ class AgentAction(Base):
     5. User approves → status=APPROVED → execution → status=EXECUTED
     6. Or user cancels → status=CANCELLED
     7. Or expires after 24 hours → status=EXPIRED
-    
+
     Attributes:
         id: Unique action identifier
         workspace_id: Workspace containing this action
@@ -67,16 +69,16 @@ class AgentAction(Base):
     workspace_id = Column(PGUUID(as_uuid=True), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True)
     user_id = Column(PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     conversation_id = Column(PGUUID(as_uuid=True), ForeignKey("conversations.id", ondelete="SET NULL"), nullable=True, index=True)
-    
+
     action_type = Column(SQLEnum(ActionType, name="action_type"), nullable=False)
     status = Column(SQLEnum(ActionStatus, name="action_status"), nullable=False, default=ActionStatus.PENDING_APPROVAL)
-    
+
     preview_json = Column(JSONB, nullable=False, default={})
     expires_at = Column(DateTime(timezone=False), nullable=False)
-    
+
     result_url = Column(Text, nullable=True)
     error_message = Column(Text, nullable=True)
-    
+
     created_at = Column(DateTime(timezone=False), nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=False), nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -90,7 +92,7 @@ class AgentAction(Base):
         workspace_id: UUID,
         user_id: UUID,
         action_type: ActionType,
-        preview_json: Dict[str, Any],
+        preview_json: dict[str, Any],
         conversation_id: Optional[UUID] = None,
         status: ActionStatus = ActionStatus.PENDING_APPROVAL,
         expires_at: Optional[datetime] = None,
@@ -100,7 +102,7 @@ class AgentAction(Base):
     ):
         """
         Initialize AgentAction.
-        
+
         Args:
             workspace_id: Workspace containing this action
             user_id: User who requested the action
@@ -126,7 +128,7 @@ class AgentAction(Base):
     def is_expired(self) -> bool:
         """
         Check if action has expired.
-        
+
         Returns:
             True if current time is past expires_at
         """
@@ -139,7 +141,7 @@ class AgentAction(Base):
     def can_be_approved(self) -> bool:
         """
         Check if action can be approved.
-        
+
         Returns:
             True if status is PENDING_APPROVAL and not expired
         """
@@ -151,7 +153,7 @@ class AgentAction(Base):
     def can_be_cancelled(self) -> bool:
         """
         Check if action can be cancelled.
-        
+
         Returns:
             True if status is PENDING_APPROVAL or APPROVED (not yet executed)
         """
@@ -160,7 +162,7 @@ class AgentAction(Base):
     def approve(self) -> None:
         """
         Approve the action for execution.
-        
+
         Raises:
             ValueError: If action cannot be approved
         """
@@ -174,23 +176,23 @@ class AgentAction(Base):
     def execute(self, result_url: str) -> None:
         """
         Mark action as successfully executed.
-        
+
         Args:
             result_url: URL of created resource
-            
+
         Raises:
             ValueError: If action is not approved
         """
         if self.status != ActionStatus.APPROVED:
             raise ValueError(f"Action must be approved before execution: status={self.status.value}")
-        
+
         self.status = ActionStatus.EXECUTED
         self.result_url = result_url
 
     def fail(self, error_message: str) -> None:
         """
         Mark action as failed.
-        
+
         Args:
             error_message: Error details
         """
@@ -200,19 +202,19 @@ class AgentAction(Base):
     def cancel(self) -> None:
         """
         Cancel the action.
-        
+
         Raises:
             ValueError: If action cannot be cancelled
         """
         if not self.can_be_cancelled():
             raise ValueError(f"Action cannot be cancelled: status={self.status.value}")
-        
+
         self.status = ActionStatus.CANCELLED
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Convert action to dictionary representation.
-        
+
         Returns:
             Dictionary with all action fields
         """

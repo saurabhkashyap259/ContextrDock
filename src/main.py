@@ -1,13 +1,14 @@
 """FastAPI application entry point."""
 
 from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from src.api.middleware.metrics import metrics_endpoint, prometheus_middleware
+from src.api.routes import conversations, query
 from src.config import settings
-from src.api.routes import query, conversations
-from src.api.middleware.metrics import prometheus_middleware, metrics_endpoint
 
 # Create FastAPI app
 app = FastAPI(
@@ -47,24 +48,26 @@ if static_dir.exists():
 async def health_check():
     """
     Health check endpoint with service connectivity checks.
-    
+
     Returns detailed status of all services:
     - Database (PostgreSQL)
     - Redis
     - Qdrant (vector database)
-    
+
     Returns HTTP 200 if healthy/degraded, 503 if unhealthy.
     """
     import time
     from datetime import datetime
+
     from sqlalchemy import text
+
     from src.config.database import get_db
     from src.integrations.vector_db import get_qdrant_client
     from src.services.cache import get_redis_client
-    
+
     services = {}
     overall_status = "healthy"
-    
+
     # Check database connectivity
     try:
         start = time.time()
@@ -81,7 +84,7 @@ async def health_check():
             "error": str(e)
         }
         overall_status = "unhealthy"  # Database is critical
-    
+
     # Check Redis connectivity
     try:
         start = time.time()
@@ -100,7 +103,7 @@ async def health_check():
         # Redis down is degraded, not unhealthy (caching is optional)
         if overall_status == "healthy":
             overall_status = "degraded"
-    
+
     # Check Qdrant connectivity
     try:
         start = time.time()
@@ -120,7 +123,7 @@ async def health_check():
         # Qdrant down is degraded (can fall back to keyword search)
         if overall_status == "healthy":
             overall_status = "degraded"
-    
+
     response_data = {
         "status": overall_status,
         "service": "contextdock-api",
@@ -129,7 +132,7 @@ async def health_check():
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "services": services
     }
-    
+
     # Return 503 if unhealthy
     if overall_status == "unhealthy":
         from fastapi.responses import JSONResponse
@@ -137,7 +140,7 @@ async def health_check():
             status_code=503,
             content=response_data
         )
-    
+
     return response_data
 
 
@@ -147,7 +150,7 @@ async def root():
     if settings.is_development and (Path(__file__).parent / "static" / "index.html").exists():
         from fastapi.responses import RedirectResponse
         return RedirectResponse(url="/app")
-    
+
     return {
         "message": "ContextDock API",
         "docs": "/docs" if settings.is_development else None,
@@ -157,7 +160,7 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     uvicorn.run(
         "src.main:app",
         host="0.0.0.0",

@@ -3,16 +3,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from src.api.schemas.query import QueryRequest, QueryResponse, Citation
 from src.api.middleware.auth import get_current_user
-from src.models.user import User
-from src.models.conversation import Conversation
-from src.models.message import Message
+from src.api.schemas.query import Citation, QueryRequest, QueryResponse
+from src.config.settings import settings
 from src.database import get_db
 from src.integrations.llm_client import OpenAIClient
+from src.models.conversation import Conversation
+from src.models.message import Message
+from src.models.user import User
 from src.retrieval.answer_generation import generate_answer
-from src.config.settings import settings
-
 
 router = APIRouter(prefix="/v1", tags=["query"])
 
@@ -25,22 +24,22 @@ def query_knowledge_base(
 ) -> QueryResponse:
     """
     Query the knowledge base with a natural language question.
-    
+
     This endpoint:
     1. Creates or continues a conversation
     2. Retrieves relevant document chunks (permission-aware)
     3. Generates an answer using LLM with RAG
     4. Stores the question and answer as messages
     5. Returns answer with grounded citations
-    
+
     Args:
         request: Query request with question and options
         current_user: Authenticated user
         db: Database session
-        
+
     Returns:
         Answer with citations and conversation metadata
-        
+
     Raises:
         404: Conversation not found or doesn't belong to user
         500: LLM or retrieval error
@@ -52,7 +51,7 @@ def query_knowledge_base(
             Conversation.workspace_id == current_user.workspace_id,
             Conversation.user_id == current_user.id,
         ).first()
-        
+
         if not conversation:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -68,7 +67,7 @@ def query_knowledge_base(
         )
         db.add(conversation)
         db.flush()
-    
+
     # Step 2: Store user's question
     user_message = Message(
         conversation_id=conversation.id,
@@ -78,14 +77,14 @@ def query_knowledge_base(
     )
     db.add(user_message)
     db.flush()
-    
+
     # Step 3: Generate answer with RAG
     try:
         llm_client = OpenAIClient(
             api_key=settings.openai_api_key,
             model=settings.openai_model,
         )
-        
+
         result = generate_answer(
             db_session=db,
             query=request.question,
@@ -102,7 +101,7 @@ def query_knowledge_base(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to generate answer"
         )
-    
+
     # Step 4: Store assistant's answer
     assistant_message = Message(
         conversation_id=conversation.id,
@@ -112,7 +111,7 @@ def query_knowledge_base(
     )
     db.add(assistant_message)
     db.commit()
-    
+
     # Step 5: Build response
     citations = [
         Citation(
@@ -124,7 +123,7 @@ def query_knowledge_base(
         )
         for c in result["citations"]
     ]
-    
+
     return QueryResponse(
         answer=result["answer"],
         citations=citations,

@@ -1,12 +1,12 @@
 """RAG-based answer generation with grounded citations."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from sqlalchemy.orm import Session
 
 from src.integrations.llm_client import LLMClient
-from src.retrieval.hybrid_search import hybrid_search
 from src.retrieval.acl_filter import filter_by_permissions
+from src.retrieval.hybrid_search import hybrid_search
 from src.services.identity_resolution import resolve_user_identities
 
 
@@ -18,10 +18,10 @@ def generate_answer(
     llm_client: LLMClient,
     max_context_chunks: int = 10,
     temperature: float = 0.7,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Generate an answer using RAG (Retrieval-Augmented Generation).
-    
+
     Process:
     1. Resolve user's connector identities
     2. Retrieve relevant chunks using hybrid search
@@ -29,7 +29,7 @@ def generate_answer(
     4. Build prompt with context
     5. Generate answer using LLM
     6. Return answer with grounded citations
-    
+
     Args:
         db_session: Database session
         query: User's question
@@ -38,10 +38,10 @@ def generate_answer(
         llm_client: LLM client instance
         max_context_chunks: Maximum chunks to include in prompt
         temperature: LLM sampling temperature
-        
+
     Returns:
         Dict with 'answer', 'citations', and 'usage' keys
-        
+
     Example:
         >>> llm = OpenAIClient(api_key="...", model="gpt-4")
         >>> result = generate_answer(
@@ -58,10 +58,10 @@ def generate_answer(
     """
     # Step 1: Resolve user identities for ACL checking
     user_identities = resolve_user_identities(db_session, user_id=user_id)
-    
+
     if not user_identities:
         user_identities = []
-    
+
     # Step 2: Retrieve relevant chunks
     search_results = hybrid_search(
         db_session=db_session,
@@ -69,13 +69,13 @@ def generate_answer(
         workspace_id=workspace_id,
         top_k=max_context_chunks * 2,  # Retrieve more for better filtering
     )
-    
+
     # Step 3: Filter by permissions
     permitted_results = filter_by_permissions(search_results, user_identities)
-    
+
     # Limit to max_context_chunks
     permitted_results = permitted_results[:max_context_chunks]
-    
+
     # Step 4: Handle no results case
     if not permitted_results:
         return {
@@ -86,10 +86,10 @@ def generate_answer(
             "citations": [],
             "usage": {"total_tokens": 0},
         }
-    
+
     # Step 5: Build prompt with context
     context_text = _build_context_from_chunks(permitted_results)
-    
+
     system_message = f"""You are a helpful assistant that answers questions based on the provided context.
 
 IMPORTANT INSTRUCTIONS:
@@ -103,15 +103,15 @@ CONTEXT:
 {context_text}
 
 Remember: Only use information from the context above."""
-    
+
     messages = [
         {"role": "system", "content": system_message},
         {"role": "user", "content": query},
     ]
-    
+
     # Step 6: Generate answer
     response = llm_client.generate(messages, temperature=temperature)
-    
+
     # Step 7: Build citations
     citations = [
         {
@@ -123,7 +123,7 @@ Remember: Only use information from the context above."""
         }
         for chunk in permitted_results
     ]
-    
+
     return {
         "answer": response["content"],
         "citations": citations,
@@ -131,29 +131,29 @@ Remember: Only use information from the context above."""
     }
 
 
-def _build_context_from_chunks(chunks: List[Dict[str, Any]]) -> str:
+def _build_context_from_chunks(chunks: list[dict[str, Any]]) -> str:
     """
     Build formatted context text from search results.
-    
+
     Args:
         chunks: List of permitted search results
-        
+
     Returns:
         Formatted context string for LLM prompt
     """
     context_parts = []
-    
+
     for i, chunk in enumerate(chunks, start=1):
         title = chunk.get("title", "Untitled")
         url = chunk.get("url", "No URL")
         content = chunk["content"]
-        
+
         context_parts.append(
             f"[Source {i}] {title}\n"
             f"URL: {url}\n"
             f"Content: {content}\n"
         )
-    
+
     return "\n---\n\n".join(context_parts)
 
 
@@ -165,12 +165,12 @@ def stream_answer(
     llm_client: LLMClient,
     max_context_chunks: int = 10,
     temperature: float = 0.7,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Stream answer generation (for real-time UX).
-    
+
     Same as generate_answer but returns an iterator for streaming.
-    
+
     Args:
         db_session: Database session
         query: User's question
@@ -179,7 +179,7 @@ def stream_answer(
         llm_client: LLM client instance
         max_context_chunks: Maximum chunks in context
         temperature: LLM temperature
-        
+
     Returns:
         Dict with 'stream' (iterator) and 'citations' keys
     """
@@ -187,44 +187,44 @@ def stream_answer(
     user_identities = resolve_user_identities(db_session, user_id=user_id)
     if not user_identities:
         user_identities = []
-    
+
     search_results = hybrid_search(
         db_session=db_session,
         query=query,
         workspace_id=workspace_id,
         top_k=max_context_chunks * 2,
     )
-    
+
     permitted_results = filter_by_permissions(search_results, user_identities)
     permitted_results = permitted_results[:max_context_chunks]
-    
+
     if not permitted_results:
         def empty_stream():
             yield "I couldn't find any relevant information to answer your question."
-        
+
         return {
             "stream": empty_stream(),
             "citations": [],
         }
-    
+
     # Build prompt
     context_text = _build_context_from_chunks(permitted_results)
-    
+
     system_message = f"""You are a helpful assistant that answers questions based on the provided context.
 
 Base your answer ONLY on the provided context. Be concise and accurate.
 
 CONTEXT:
 {context_text}"""
-    
+
     messages = [
         {"role": "system", "content": system_message},
         {"role": "user", "content": query},
     ]
-    
+
     # Stream response
     stream = llm_client.stream(messages, temperature=temperature)
-    
+
     # Build citations
     citations = [
         {
@@ -236,7 +236,7 @@ CONTEXT:
         }
         for chunk in permitted_results
     ]
-    
+
     return {
         "stream": stream,
         "citations": citations,

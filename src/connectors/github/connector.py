@@ -1,9 +1,9 @@
 """GitHub connector for syncing repositories, issues, PRs, and files."""
 
 import base64
-import re
-from datetime import datetime, timezone
-from typing import Any, Dict, Iterator, List, Optional
+from collections.abc import Iterator
+from datetime import datetime
+from typing import Any, Optional
 
 import requests
 
@@ -50,10 +50,10 @@ class GitHubConnector(ConnectorBase):
         self.config = connector.config or {}
         self.organization = self.config.get("organization")
         self.repositories = self.config.get("repositories", [])
-        self.user_cache: Dict[str, Dict[str, Any]] = {}
-        self.repo_cache: Dict[str, Dict[str, Any]] = {}
+        self.user_cache: dict[str, dict[str, Any]] = {}
+        self.repo_cache: dict[str, dict[str, Any]] = {}
 
-    def _get_auth_headers(self) -> Dict[str, str]:
+    def _get_auth_headers(self) -> dict[str, str]:
         """Get authentication headers for GitHub API.
 
         Returns:
@@ -77,7 +77,7 @@ class GitHubConnector(ConnectorBase):
         page: int = 1,
         per_page: int = 30,
         since: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fetch a page of repositories.
 
         Args:
@@ -132,7 +132,7 @@ class GitHubConnector(ConnectorBase):
         page: int = 1,
         per_page: int = 30,
         since: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fetch a page of issues for a repository.
 
         Args:
@@ -177,7 +177,7 @@ class GitHubConnector(ConnectorBase):
         page: int = 1,
         per_page: int = 30,
         since: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fetch a page of pull requests for a repository.
 
         Args:
@@ -223,7 +223,7 @@ class GitHubConnector(ConnectorBase):
         self,
         owner: str,
         repo: str,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> Optional[dict[str, Any]]:
         """Fetch README file for a repository.
 
         Args:
@@ -251,7 +251,7 @@ class GitHubConnector(ConnectorBase):
         owner: str,
         repo: str,
         issue_number: int,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fetch comments for an issue.
 
         Args:
@@ -300,11 +300,11 @@ class GitHubConnector(ConnectorBase):
 
     def sync(
         self,
-        cursor_state: Optional[Dict[str, Any]] = None,
+        cursor_state: Optional[dict[str, Any]] = None,
         max_repos: Optional[int] = None,
         max_issues_per_repo: Optional[int] = None,
         max_prs_per_repo: Optional[int] = None,
-    ) -> Iterator[Dict[str, Any]]:
+    ) -> Iterator[dict[str, Any]]:
         """Sync repositories, issues, PRs, and READMEs from GitHub.
 
         Args:
@@ -528,7 +528,7 @@ class GitHubConnector(ConnectorBase):
 
             page += 1
 
-    def _format_repo_content(self, repo: Dict[str, Any]) -> str:
+    def _format_repo_content(self, repo: dict[str, Any]) -> str:
         """Format repository metadata as searchable content.
 
         Args:
@@ -550,7 +550,7 @@ class GitHubConnector(ConnectorBase):
 
         return "\n".join(parts)
 
-    def _format_issue_content(self, issue: Dict[str, Any]) -> str:
+    def _format_issue_content(self, issue: dict[str, Any]) -> str:
         """Format issue as searchable content.
 
         Args:
@@ -575,7 +575,7 @@ class GitHubConnector(ConnectorBase):
 
         return "\n".join(parts)
 
-    def _format_pr_content(self, pr: Dict[str, Any]) -> str:
+    def _format_pr_content(self, pr: dict[str, Any]) -> str:
         """Format pull request as searchable content.
 
         Args:
@@ -597,7 +597,7 @@ class GitHubConnector(ConnectorBase):
 
         return "\n".join(parts)
 
-    def extract_acl(self, repo: Dict[str, Any]) -> Dict[str, Any]:
+    def extract_acl(self, repo: dict[str, Any]) -> dict[str, Any]:
         """Extract ACL metadata from repository.
 
         Args:

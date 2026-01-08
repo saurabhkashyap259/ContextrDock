@@ -4,7 +4,6 @@ import logging
 from typing import Optional
 
 from celery import Task
-from celery.exceptions import Retry
 from requests.exceptions import HTTPError
 
 logger = logging.getLogger(__name__)

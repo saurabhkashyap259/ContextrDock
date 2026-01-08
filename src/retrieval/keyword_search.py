@@ -1,6 +1,6 @@
 """BM25 keyword search using PostgreSQL full-text search."""
 
-from typing import Any, Dict, List
+from typing import Any
 
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
@@ -14,21 +14,21 @@ def search_by_keywords(
     query: str,
     workspace_id: int,
     top_k: int = 10,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Search document chunks using BM25-style keyword matching.
-    
+
     Uses PostgreSQL's built-in full-text search with ts_rank for relevance scoring.
-    
+
     Args:
         db_session: Database session
         query: Search query string
         workspace_id: Workspace ID for filtering
         top_k: Maximum number of results to return
-        
+
     Returns:
         List of search results with metadata and scores
-        
+
     Example:
         >>> results = search_by_keywords(
         ...     db_session=session,
@@ -43,7 +43,7 @@ def search_by_keywords(
     """
     if not query or not query.strip():
         return []
-    
+
     # PostgreSQL full-text search query
     # ts_rank provides BM25-like relevance scoring
     search_query = db_session.query(
@@ -71,7 +71,7 @@ def search_by_keywords(
     ).order_by(
         text("score DESC")
     ).limit(top_k)
-    
+
     results = []
     for row in search_query.all():
         results.append({
@@ -87,5 +87,5 @@ def search_by_keywords(
             "workspace_id": row.workspace_id,
             "score": float(row.score) if row.score else 0.0,
         })
-    
+
     return results

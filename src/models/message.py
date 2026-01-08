@@ -11,7 +11,7 @@ from src.models.base import Base
 class Message(Base):
     """
     Message represents a single message in a conversation.
-    
+
     Messages follow the OpenAI chat format:
     - role: "user" (question), "assistant" (answer), "system" (instructions)
     - content: The message text
@@ -27,15 +27,15 @@ class Message(Base):
         nullable=False,
         index=True
     )
-    
+
     # Message content
     role = Column(String(50), nullable=False)  # "user", "assistant", "system"
     content = Column(Text, nullable=False)
-    
+
     # Citations for grounded responses (only for assistant messages)
     # Example: {"citations": [{"document_id": 123, "chunk_id": 456, "title": "...", "url": "...", "snippet": "..."}]}
     citations_json = Column(JSONB, nullable=False, default=dict, server_default="{}")
-    
+
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     def __repr__(self) -> str:

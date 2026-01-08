@@ -1,7 +1,7 @@
 """Pydantic schemas for Connector API."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -27,7 +27,7 @@ class ConnectorCreate(BaseModel):
 
     connector_type: str = Field(..., description="Type of connector (slack, jira, etc.)")
     display_name: str = Field(..., min_length=1, max_length=255)
-    config: Dict[str, Any] = Field(default_factory=dict, description="Connector configuration")
+    config: dict[str, Any] = Field(default_factory=dict, description="Connector configuration")
     credentials: ConnectorCredentials = Field(..., description="OAuth credentials")
     sync_schedule: Optional[str] = Field(
         None,
@@ -63,7 +63,7 @@ class ConnectorUpdate(BaseModel):
     """Schema for updating a connector."""
 
     display_name: Optional[str] = Field(None, min_length=1, max_length=255)
-    config: Optional[Dict[str, Any]] = None
+    config: Optional[dict[str, Any]] = None
     credentials: Optional[ConnectorCredentials] = None
     sync_schedule: Optional[str] = None
     is_active: Optional[bool] = None
@@ -95,7 +95,7 @@ class SyncRunResponse(BaseModel):
     documents_updated: int = 0
     documents_deleted: int = 0
     error_message: Optional[str] = None
-    cursor_state: Optional[Dict[str, Any]] = None
+    cursor_state: Optional[dict[str, Any]] = None
 
     model_config = {"from_attributes": True}
 
@@ -107,14 +107,14 @@ class ConnectorResponse(BaseModel):
     workspace_id: int
     connector_type: str
     display_name: str
-    config: Dict[str, Any]
+    config: dict[str, Any]
     sync_schedule: Optional[str] = None
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
     last_sync_at: Optional[datetime] = None
     last_sync_status: Optional[str] = None
-    
+
     # Don't expose credentials in responses
     # credentials field is intentionally omitted
 
@@ -124,13 +124,13 @@ class ConnectorResponse(BaseModel):
 class ConnectorDetailResponse(ConnectorResponse):
     """Schema for detailed connector response with sync runs."""
 
-    recent_sync_runs: List[SyncRunResponse] = Field(default_factory=list)
+    recent_sync_runs: list[SyncRunResponse] = Field(default_factory=list)
 
 
 class ConnectorListResponse(BaseModel):
     """Schema for list of connectors."""
 
-    connectors: List[ConnectorResponse]
+    connectors: list[ConnectorResponse]
     total: int
     page: int = 1
     page_size: int = 50
@@ -139,7 +139,7 @@ class ConnectorListResponse(BaseModel):
 class SyncRunListResponse(BaseModel):
     """Schema for list of sync runs."""
 
-    sync_runs: List[SyncRunResponse]
+    sync_runs: list[SyncRunResponse]
     total: int
     page: int = 1
     page_size: int = 50
