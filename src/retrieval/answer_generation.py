@@ -124,6 +124,8 @@ Remember: Only use information from the context above."""
             "document_id": chunk["document_id"],
             "title": chunk.get("title"),
             "url": chunk.get("url"),
+            "source_type": chunk.get("source_type", "unknown"),
+            "content": chunk.get("content", ""),
             "score": chunk["score"],
         }
         for chunk in permitted_results
