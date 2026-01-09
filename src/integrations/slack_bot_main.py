@@ -11,11 +11,16 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+from dotenv import load_dotenv
 from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
 from slack_bolt.async_app import AsyncApp
 
 from src.integrations.slack_bot import SlackBot
 from src.integrations.slack_formatter import format_help_message
+from src.services.query_service import QueryService
+
+# Load environment variables
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,35 +33,8 @@ logger = logging.getLogger(__name__)
 app = AsyncApp(token=os.environ.get("SLACK_BOT_TOKEN"))
 
 
-# Mock query service for now
-class MockQueryService:
-    """Mock query service until real implementation is ready."""
-
-    async def query(
-        self,
-        question: str,
-        user_id: str,
-        user_email: str = None,
-        channel_id: str = None
-    ):
-        """Mock query method."""
-        return {
-            "answer": "This is a test response from ContextDock. "
-                     "The actual RAG system will provide real answers based on your connected tools.",
-            "citations": [
-                {
-                    "source": "slack",
-                    "title": "Example Citation",
-                    "url": "https://example.slack.com/archives/C123/p1234567890",
-                    "snippet": "This is an example citation from Slack."
-                }
-            ],
-            "conversation_id": "test-conv-123"
-        }
-
-
-# Initialize bot
-query_service = MockQueryService()
+# Initialize real query service
+query_service = QueryService()
 bot = SlackBot(
     slack_client=app.client,
     query_service=query_service,

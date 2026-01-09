@@ -10,7 +10,7 @@ from enum import Enum
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import Column, DateTime, ForeignKey, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
@@ -66,9 +66,9 @@ class AgentAction(Base):
     __tablename__ = "agent_actions"
 
     id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    workspace_id = Column(PGUUID(as_uuid=True), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True)
-    user_id = Column(PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    conversation_id = Column(PGUUID(as_uuid=True), ForeignKey("conversations.id", ondelete="SET NULL"), nullable=True, index=True)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    conversation_id = Column(Integer, ForeignKey("conversations.id", ondelete="SET NULL"), nullable=True, index=True)
 
     action_type = Column(SQLEnum(ActionType, name="action_type"), nullable=False)
     status = Column(SQLEnum(ActionStatus, name="action_status"), nullable=False, default=ActionStatus.PENDING_APPROVAL)
@@ -89,11 +89,11 @@ class AgentAction(Base):
 
     def __init__(
         self,
-        workspace_id: UUID,
-        user_id: UUID,
+        workspace_id: int,
+        user_id: int,
         action_type: ActionType,
         preview_json: dict[str, Any],
-        conversation_id: Optional[UUID] = None,
+        conversation_id: Optional[int] = None,
         status: ActionStatus = ActionStatus.PENDING_APPROVAL,
         expires_at: Optional[datetime] = None,
         result_url: Optional[str] = None,

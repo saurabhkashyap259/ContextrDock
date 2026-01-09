@@ -71,7 +71,12 @@ def generate_answer(
     )
 
     # Step 3: Filter by permissions
-    permitted_results = filter_by_permissions(search_results, user_identities)
+    # If no user identities, skip ACL filtering (allow access to all results)
+    # This enables admin/bot users without connector identities to access all content
+    if user_identities:
+        permitted_results = filter_by_permissions(search_results, user_identities)
+    else:
+        permitted_results = search_results
 
     # Limit to max_context_chunks
     permitted_results = permitted_results[:max_context_chunks]

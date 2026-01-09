@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from src.api.middleware.metrics import metrics_endpoint, prometheus_middleware
-from src.api.routes import conversations, query
+from src.api.routes import connectors, conversations, query, search, slack_bot
 from src.config import settings
 
 # Create FastAPI app
@@ -32,6 +32,9 @@ app.add_middleware(
 app.middleware("http")(prometheus_middleware)
 
 # Include routers
+app.include_router(connectors.router, prefix="/api")
+app.include_router(search.router, prefix="/api")
+app.include_router(slack_bot.router, prefix="/api")
 app.include_router(query.router)
 app.include_router(conversations.router)
 
@@ -61,7 +64,7 @@ async def health_check():
 
     from sqlalchemy import text
 
-    from src.config.database import get_db
+    from src.database import get_db
     from src.integrations.vector_db import get_qdrant_client
     from src.services.cache import get_redis_client
 
@@ -128,7 +131,7 @@ async def health_check():
         "status": overall_status,
         "service": "contextdock-api",
         "version": "0.1.0",
-        "environment": settings.environment,
+        "environment": settings.app_env,
         "timestamp": datetime.utcnow().isoformat() + "Z",
         "services": services
     }

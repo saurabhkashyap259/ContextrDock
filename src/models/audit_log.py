@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, String
+from sqlalchemy import CheckConstraint, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.dialects.postgresql import INET, JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import relationship
@@ -44,12 +44,12 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
-    workspace_id = Column(PGUUID(as_uuid=True), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True)
-    actor_user_id = Column(PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=True, index=True)
+    workspace_id = Column(Integer, ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False, index=True)
+    actor_user_id = Column(Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=True, index=True)
 
     action = Column(String(100), nullable=False, index=True)
     target_type = Column(String(50), nullable=False)
-    target_id = Column(PGUUID(as_uuid=True), nullable=False)
+    target_id = Column(String(255), nullable=False)
 
     details_json = Column(JSONB, nullable=False, default={})
     ip_address = Column(INET, nullable=True)
@@ -67,11 +67,11 @@ class AuditLog(Base):
 
     def __init__(
         self,
-        workspace_id: UUID,
+        workspace_id: int,
         action: str,
         target_type: str,
-        target_id: UUID,
-        actor_user_id: Optional[UUID] = None,
+        target_id: str,
+        actor_user_id: Optional[int] = None,
         details_json: Optional[dict[str, Any]] = None,
         ip_address: Optional[str] = None,
         **kwargs

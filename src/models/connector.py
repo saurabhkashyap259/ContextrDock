@@ -1,5 +1,10 @@
 """Connector model for workplace tool integrations."""
 
+import json
+import os
+from typing import Optional
+
+from cryptography.fernet import Fernet
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, LargeBinary, String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
@@ -61,6 +66,31 @@ class Connector(Base):
     connector_definition = relationship("ConnectorDefinition", back_populates="connectors")
     documents = relationship("Document", back_populates="connector", cascade="all, delete-orphan")
     sync_runs = relationship("SyncRun", back_populates="connector", cascade="all, delete-orphan")
+
+    @property
+    def credentials(self) -> Optional[dict]:
+        """Decrypt and return credentials as dictionary.
+        
+        Returns:
+            Decrypted credentials dictionary, or None if no credentials
+        """
+        if not self.credentials_encrypted:
+            return None
+        
+        try:
+            # Get Fernet key from environment
+            fernet_key = os.getenv("FERNET_KEY")
+            if not fernet_key:
+                raise ValueError("FERNET_KEY not found in environment")
+            
+            fernet = Fernet(fernet_key.encode())
+            decrypted = fernet.decrypt(self.credentials_encrypted).decode()
+            return json.loads(decrypted)
+        except Exception as e:
+            # Log error but don't expose credentials details
+            import logging
+            logging.error(f"Failed to decrypt credentials for connector {self.id}: {type(e).__name__}")
+            return None
 
     def __repr__(self) -> str:
         return f"<Connector(id={self.id}, name='{self.name}', active={self.is_active})>"

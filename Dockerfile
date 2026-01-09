@@ -74,14 +74,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create non-root user for security
 RUN groupadd -r contextdock && useradd -r -g contextdock contextdock
 
-# Copy installed packages from builder
-COPY --from=builder /root/.local /root/.local
+# Copy installed packages from builder to user's local directory
+COPY --from=builder --chown=contextdock:contextdock /root/.local /home/contextdock/.local
 
 # Copy application code
 COPY --chown=contextdock:contextdock . .
 
 # Make sure scripts are in PATH
-ENV PATH=/root/.local/bin:$PATH
+ENV PATH=/home/contextdock/.local/bin:$PATH
 
 # Set Python environment variables
 ENV PYTHONUNBUFFERED=1 \

@@ -317,3 +317,23 @@ class QdrantClient(VectorDB):
             collection_name=self.collection_name,
             points_selector=Filter(must=conditions),
         )
+
+
+# Global singleton instance
+_qdrant_client: Optional[QdrantClient] = None
+
+
+def get_qdrant_client() -> QdrantClient:
+    """Get or create Qdrant client singleton.
+    
+    Returns:
+        QdrantClient: Singleton Qdrant client instance
+    """
+    global _qdrant_client
+    if _qdrant_client is None:
+        _qdrant_client = QdrantClient(
+            url=settings.qdrant_url,
+            api_key=settings.qdrant_api_key,
+            collection_name="contextdock"
+        )
+    return _qdrant_client

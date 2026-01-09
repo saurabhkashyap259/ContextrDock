@@ -47,6 +47,10 @@ class Settings(BaseSettings):
         default=None,
         description="OpenAI API key for embeddings and LLM",
     )
+    openai_model: str = Field(
+        default="gpt-4-turbo-preview",
+        description="OpenAI model to use for chat completions",
+    )
     anthropic_api_key: str | None = Field(
         default=None,
         description="Anthropic API key for Claude models",

@@ -38,13 +38,14 @@ class ConfluenceConnector(ConnectorBase):
     RATE_LIMIT_CALLS = 10  # Confluence Cloud: 10 requests per second
     RATE_LIMIT_PERIOD = 1  # seconds
 
-    def __init__(self, connector: Connector):
+    def __init__(self, connector: Connector, db_session: Optional[Any] = None):
         """Initialize Confluence connector.
 
         Args:
             connector: Connector model instance with credentials and config
+            db_session: Optional database session (not used for API operations)
         """
-        super().__init__(connector)
+        super().__init__(connector, db_session)
         self._oauth_token: Optional[OAuth2Token] = None
         self._spaces_cache: dict[str, dict[str, Any]] = {}
 
@@ -61,17 +62,40 @@ class ConfluenceConnector(ConnectorBase):
         """Get HTTP headers with authorization."""
         if self._oauth_token is None:
             # Load token from connector credentials
-            creds = getattr(self.connector, 'credentials', {})
-            if creds:
+            creds = self.connector.credentials
+            if not creds:
+                raise ValueError("No credentials found for Confluence connector")
+                
+            access_token = creds.get("access_token", "")
+            if not access_token:
+                raise ValueError("No access_token in Confluence credentials")
+            
+            # Check if this is an API token (Basic Auth) or OAuth token
+            # API tokens are base64 encoded email:token
+            # OAuth tokens start with 'eyJ' (JWT format)
+            if access_token.startswith("eyJ"):
+                # OAuth token
                 self._oauth_token = OAuth2Token(
-                    access_token=creds["access_token"],
+                    access_token=access_token,
                     token_type=creds.get("token_type", "Bearer"),
                     expires_in=creds.get("expires_in", 3600),
                     refresh_token=creds.get("refresh_token"),
                     scope=creds.get("scope", ""),
-                    expires_at=creds.get("expires_at", datetime.now().timestamp() + 3600),
                 )
+                return {
+                    "Authorization": f"Bearer {self._oauth_token.access_token}",
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                }
+            else:
+                # API token with Basic Auth
+                return {
+                    "Authorization": f"Basic {access_token}",
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                }
 
+        # OAuth token path
         return {
             "Authorization": f"Bearer {self._oauth_token.access_token}" if self._oauth_token else "",
             "Accept": "application/json",

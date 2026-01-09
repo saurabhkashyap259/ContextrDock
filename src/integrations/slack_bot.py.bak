@@ -560,12 +560,8 @@ async def search_contextdock(query: str, limit: int = 5, min_score: float = 0.3)
                 min_score=min_score
             )
             
-            # Call search function directly with correct arguments
-            result = await search_documents(
-                request=search_req,
-                workspace_id=1,  # TODO: Get from auth context
-                db=db
-            )
+            # Call search function directly (it's async)
+            result = await search_documents(search_req, db)
             return result.dict()
         finally:
             db.close()
@@ -710,30 +706,8 @@ async def handle_app_mention(event: dict) -> None:
     slack_client = AsyncWebClient(token=settings.slack_bot_token)
     
     try:
-        # Comprehensive bot filtering
-        # 1. Ignore messages with bot_id (from any bot)
-        if event.get("bot_id"):
-            logger.info(f"Ignoring bot message (bot_id present): {event.get('bot_id')}")
-            return
-        
-        # 2. Ignore bot_message subtype
-        if event.get("subtype") == "bot_message":
-            logger.info("Ignoring bot message (bot_message subtype)")
-            return
-        
-        # 3. Ignore message_changed events (when we update messages)
-        if event.get("subtype") == "message_changed":
-            logger.info("Ignoring message_changed event")
-            return
-        
-        # 4. Only process messages with a user (not from apps/bots)
-        if not event.get("user"):
-            logger.info("Ignoring message without user field")
-            return
-        
         # Extract query from message text (remove bot mention)
         text = event.get("text", "")
-        logger.info(f"Processing @mention from user {event.get('user')}: {text}")
         # Remove bot mention (e.g., "<@U123456> query" -> "query")
         query = text.split(">", 1)[-1].strip() if ">" in text else text.strip()
         
@@ -763,7 +737,7 @@ async def handle_app_mention(event: dict) -> None:
         )
         
         # Search ContextDock
-        results = await search_contextdock(query, limit=5, min_score=0.3)
+        results = search_contextdock(query, limit=5, min_score=0.3)
         
         # Format and send results
         blocks = format_search_results(results, query)
@@ -798,29 +772,7 @@ async def handle_direct_message(event: dict) -> None:
     slack_client = AsyncWebClient(token=settings.slack_bot_token)
     
     try:
-        # Comprehensive bot filtering
-        # 1. Ignore messages with bot_id (from any bot)
-        if event.get("bot_id"):
-            logger.info(f"Ignoring bot message (bot_id present): {event.get('bot_id')}")
-            return
-        
-        # 2. Ignore bot_message subtype
-        if event.get("subtype") == "bot_message":
-            logger.info("Ignoring bot message (bot_message subtype)")
-            return
-        
-        # 3. Ignore message_changed events (when we update messages)
-        if event.get("subtype") == "message_changed":
-            logger.info("Ignoring message_changed event")
-            return
-        
-        # 4. Only process messages with a user (not from apps/bots)
-        if not event.get("user"):
-            logger.info("Ignoring message without user field")
-            return
-        
         query = event.get("text", "").strip()
-        logger.info(f"Processing DM from user {event.get('user')}: {query}")
         
         if not query:
             await slack_client.chat_postMessage(
@@ -836,7 +788,7 @@ async def handle_direct_message(event: dict) -> None:
         )
         
         # Search ContextDock
-        results = await search_contextdock(query, limit=5, min_score=0.3)
+        results = search_contextdock(query, limit=5, min_score=0.3)
         
         # Format and send results
         blocks = format_search_results(results, query)
@@ -886,7 +838,7 @@ async def handle_slash_command(command: dict) -> dict:
             }
         
         # Search ContextDock
-        results = await search_contextdock(query, limit=5, min_score=0.3)
+        results = search_contextdock(query, limit=5, min_score=0.3)
         
         # Format results
         blocks = format_search_results(results, query)
